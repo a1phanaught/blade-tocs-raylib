@@ -21,6 +21,7 @@
 
 #include "raylib.h"
 #include "BladeCards.h"
+#include "GameFunctions.h"
 
 #if defined(PLATFORM_WEB)
     #include <emscripten/emscripten.h>
@@ -47,24 +48,21 @@ int main()
     const int screenHeight = 900;
 
     InitWindow(screenWidth, screenHeight, "raylib");
+    // Must initialise cards before use
     CardsInit();
 
-    one.startPoint = (Vector2){10.0f, 10.0f};
-    two.startPoint = (Vector2){200.0f, 10.0f};
+    Rectangle cardRec[10];
+    int cardsQuantity = 10;
+    Card playerCards[cardsQuantity];
+    SetupCardArray(playerCards, cardsQuantity);
+    SortCardArray(playerCards, cardsQuantity);
+    const float playerYCoordinate = 10.0f;
 
-    /*Card one;
-    one.img = LoadImage("./img/1.png");
-    ImageResize(&one.img, 180, 240);
-    Texture2D oneTxte = LoadTextureFromImage(one.img);
-    UnloadImage(one.img);
-    one.startPoint = (Vector2){10.0f, 10.0f};
+    /*Card ichi = one;
+    Card ni = two;
 
-    Card two;
-    two.img = LoadImage("./img/2.png");
-    ImageResize(&two.img, 180, 240);
-    Texture2D twoTxte = LoadTextureFromImage(two.img);
-    UnloadImage(two.img);
-    two.startPoint = (Vector2){200.0f, 10.0f};*/
+    ichi.startPoint = (Vector2){10.0f, 10.0f};
+    ni.startPoint = (Vector2){200.0f, 10.0f};*/
     //--------------------------------------------------------------------------------------
 
 #if defined(PLATFORM_WEB)
@@ -78,17 +76,26 @@ int main()
     {
         //UpdateDrawFrame();
         Vector2 mouseXY = GetMousePosition();
-        if (mouseXY.x < one.startPoint.x + 180 && mouseXY.y < one.startPoint.y + 240) one.startPoint.y = 50.0f;
-        else one.startPoint.y = 10.0f;
+        /*if (mouseXY.x < ichi.startPoint.x + 180 && mouseXY.y < ichi.startPoint.y + 240) ichi.startPoint.y = 50.0f;
+        else ichi.startPoint.y = 10.0f;
 
-        if (mouseXY.x < two.startPoint.x + 180 && mouseXY.y < two.startPoint.y + 240 && mouseXY.x > one.startPoint.x + 180) two.startPoint.y = 50.0f;
-        else two.startPoint.y = 10.0f;
+        if (mouseXY.x < ni.startPoint.x + 180 && mouseXY.y < ni.startPoint.y + 240 && mouseXY.x > ichi.startPoint.x + 180) ni.startPoint.y = 50.0f;
+        else ni.startPoint.y = 10.0f;*/
 
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
-            DrawTexture(one.txte, one.startPoint.x, one.startPoint.y, WHITE);
-            DrawTexture(two.txte, two.startPoint.x, two.startPoint.y, WHITE);
+            /*DrawTexture(ichi.txte, ichi.startPoint.x, ichi.startPoint.y, WHITE);
+            DrawTexture(ni.txte, ni.startPoint.x, ni.startPoint.y, WHITE);*/
+            // DrawTextureRec(playerCards[0].txte, cardRec, (Vector2){10, 10}, WHITE);
+            Rectangle deckBorder = {0, 0, 10, 200};
+            DrawRectangleRec(deckBorder, GRAY);
+            float playerXCoordinate = 10.0f;
+            for (int i = 0; i < cardsQuantity; i++) {
+                cardRec[i] = (Rectangle){0, 0, CARD_WIDTH, CARD_HEIGHT};
+                DrawTextureRec(playerCards[i].txte, cardRec[i], (Vector2){playerXCoordinate,playerYCoordinate}, WHITE);
+                playerXCoordinate += (float)CARD_WIDTH;
+            }
         }
         EndDrawing();
     }
