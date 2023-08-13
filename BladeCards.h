@@ -10,8 +10,8 @@ typedef struct Card {
     // Card startPoint is where the upper left corner of the card is located
     // Card endPoint is where the lower right corner of the card is located
     // The reason I do this is to detect mouse hover and mouse clicks on the card
-    int value;
-    int indexValue;
+    Vector2 startPoint, endPoint;
+    int value, indexValue;
     //char* effect;
     enum effects effect;
 } Card;

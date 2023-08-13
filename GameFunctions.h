@@ -41,4 +41,14 @@ void SortCardArray(Card *cardArr, int cardsQuantity) {
     }
 }
 
+bool IsCursorHoverOverCard(Card *card) {
+    Vector2 mouseCoordinate = GetMousePosition();
+
+    if (mouseCoordinate.x > card->startPoint.x && mouseCoordinate.y > card->startPoint.y &&
+    mouseCoordinate.x < card->endPoint.x && mouseCoordinate.y < card->endPoint.y)
+        return true;
+
+    return false;
+}
+
 #endif // GAMEFUNCTIONS_H

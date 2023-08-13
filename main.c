@@ -51,12 +51,12 @@ int main()
     // Must initialise cards before use
     CardsInit();
 
-    Rectangle cardRec[10];
     int cardsQuantity = 10;
     Card playerCards[cardsQuantity];
     SetupCardArray(playerCards, cardsQuantity);
     SortCardArray(playerCards, cardsQuantity);
     const float playerYCoordinate = 10.0f;
+    const float playerYEndpoint = playerYCoordinate + CARD_HEIGHT;
 
     /*Card ichi = one;
     Card ni = two;
@@ -82,19 +82,28 @@ int main()
         if (mouseXY.x < ni.startPoint.x + 180 && mouseXY.y < ni.startPoint.y + 240 && mouseXY.x > ichi.startPoint.x + 180) ni.startPoint.y = 50.0f;
         else ni.startPoint.y = 10.0f;*/
 
+        // Reminder that you're still within a loop, so don't worry too much about updating the position of cards...
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
             /*DrawTexture(ichi.txte, ichi.startPoint.x, ichi.startPoint.y, WHITE);
             DrawTexture(ni.txte, ni.startPoint.x, ni.startPoint.y, WHITE);*/
             // DrawTextureRec(playerCards[0].txte, cardRec, (Vector2){10, 10}, WHITE);
-            Rectangle deckBorder = {0, 0, 10, 200};
-            DrawRectangleRec(deckBorder, GRAY);
-            float playerXCoordinate = 10.0f;
-            for (int i = 0; i < cardsQuantity; i++) {
-                cardRec[i] = (Rectangle){0, 0, CARD_WIDTH, CARD_HEIGHT};
-                DrawTextureRec(playerCards[i].txte, cardRec[i], (Vector2){playerXCoordinate,playerYCoordinate}, WHITE);
-                playerXCoordinate += (float)CARD_WIDTH;
+            playerCards[0].startPoint.x = 10.0f;
+            playerCards[0].endPoint.x = playerCards[0].startPoint.x + CARD_WIDTH;
+            playerCards[0].endPoint.y = playerYEndpoint;
+            if (IsCursorHoverOverCard(&playerCards[0])) playerCards[0].startPoint.y = playerYCoordinate + 20;
+            else playerCards[0].startPoint.y = playerYCoordinate;
+            DrawTexture(playerCards[0].txte, playerCards[0].startPoint.x, playerCards[0].startPoint.y, WHITE);
+            
+            for (int i = 1; i < cardsQuantity; i++) {
+                playerCards[i].startPoint.x = playerCards[i-1].endPoint.x + 10.0f;
+                playerCards[i].endPoint.x = playerCards[i].startPoint.x + CARD_WIDTH;
+                playerCards[i].endPoint.y = playerYEndpoint;
+                if (IsCursorHoverOverCard(&playerCards[i])) playerCards[i].startPoint.y = playerYCoordinate + 20;
+                else playerCards[i].startPoint.y = playerYCoordinate;
+                DrawTexture(playerCards[i].txte, playerCards[i].startPoint.x, playerCards[i].startPoint.y, WHITE);
+                //playerXCoordinate += (float)CARD_WIDTH;
             }
         }
         EndDrawing();
