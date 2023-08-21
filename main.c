@@ -23,6 +23,8 @@
 #include "BladeCards.h"
 #include "GameFunctions.h"
 
+#include <stdlib.h>
+
 #if defined(PLATFORM_WEB)
     #include <emscripten/emscripten.h>
 #endif
@@ -35,7 +37,7 @@
 //----------------------------------------------------------------------------------
 // Local Functions Declaration
 //----------------------------------------------------------------------------------
-static void UpdateDrawFrame(void);          // Update and draw one frame
+//static void UpdateDrawFrame(void);          // Update and draw one frame
 
 //----------------------------------------------------------------------------------
 // Main entry point
@@ -52,17 +54,13 @@ int main()
     CardsInit();
 
     int cardsQuantity = 10;
-    Card playerCards[cardsQuantity];
+    // Card array must be dynamic
+    Card *playerCards = (Card*)calloc(cardsQuantity, sizeof(Card));
+
     SetupCardArray(playerCards, cardsQuantity);
     SortCardArray(playerCards, cardsQuantity);
     const float playerYCoordinate = 10.0f;
     const float playerYEndpoint = playerYCoordinate + CARD_HEIGHT;
-
-    /*Card ichi = one;
-    Card ni = two;
-
-    ichi.startPoint = (Vector2){10.0f, 10.0f};
-    ni.startPoint = (Vector2){200.0f, 10.0f};*/
     //--------------------------------------------------------------------------------------
 
 #if defined(PLATFORM_WEB)
@@ -75,35 +73,35 @@ int main()
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         //UpdateDrawFrame();
-        Vector2 mouseXY = GetMousePosition();
-        /*if (mouseXY.x < ichi.startPoint.x + 180 && mouseXY.y < ichi.startPoint.y + 240) ichi.startPoint.y = 50.0f;
-        else ichi.startPoint.y = 10.0f;
-
-        if (mouseXY.x < ni.startPoint.x + 180 && mouseXY.y < ni.startPoint.y + 240 && mouseXY.x > ichi.startPoint.x + 180) ni.startPoint.y = 50.0f;
-        else ni.startPoint.y = 10.0f;*/
 
         // Reminder that you're still within a loop, so don't worry too much about updating the position of cards...
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
-            /*DrawTexture(ichi.txte, ichi.startPoint.x, ichi.startPoint.y, WHITE);
-            DrawTexture(ni.txte, ni.startPoint.x, ni.startPoint.y, WHITE);*/
-            // DrawTextureRec(playerCards[0].txte, cardRec, (Vector2){10, 10}, WHITE);
-            playerCards[0].startPoint.x = 10.0f;
-            playerCards[0].endPoint.x = playerCards[0].startPoint.x + CARD_WIDTH;
-            playerCards[0].endPoint.y = playerYEndpoint;
-            if (IsCursorHoverOverCard(&playerCards[0])) playerCards[0].startPoint.y = playerYCoordinate + 20;
-            else playerCards[0].startPoint.y = playerYCoordinate;
-            DrawTexture(playerCards[0].txte, playerCards[0].startPoint.x, playerCards[0].startPoint.y, WHITE);
-            
-            for (int i = 1; i < cardsQuantity; i++) {
-                playerCards[i].startPoint.x = playerCards[i-1].endPoint.x + 10.0f;
-                playerCards[i].endPoint.x = playerCards[i].startPoint.x + CARD_WIDTH;
-                playerCards[i].endPoint.y = playerYEndpoint;
-                if (IsCursorHoverOverCard(&playerCards[i])) playerCards[i].startPoint.y = playerYCoordinate + 20;
-                else playerCards[i].startPoint.y = playerYCoordinate;
-                DrawTexture(playerCards[i].txte, playerCards[i].startPoint.x, playerCards[i].startPoint.y, WHITE);
-                //playerXCoordinate += (float)CARD_WIDTH;
+
+            if (cardsQuantity > 0) {
+                playerCards[0].startPoint.x = 10.0f;
+                playerCards[0].endPoint.x = playerCards[0].startPoint.x + CARD_WIDTH;
+                playerCards[0].endPoint.y = playerYEndpoint;
+                DrawTexture(playerCards[0].txte, playerCards[0].startPoint.x, playerCards[0].startPoint.y, WHITE);
+                if (IsCursorHoverOverCard(&playerCards[0])) {
+                    playerCards[0].startPoint.y = playerYCoordinate + 20;
+                    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) RemoveCardsAtIndex(&playerCards, &cardsQuantity, 0);
+                }
+                else playerCards[0].startPoint.y = playerYCoordinate;
+                
+                for (int i = 1; i < cardsQuantity; i++) {
+                    playerCards[i].startPoint.x = playerCards[i-1].endPoint.x + 10.0f;
+                    playerCards[i].endPoint.x = playerCards[i].startPoint.x + CARD_WIDTH;
+                    playerCards[i].endPoint.y = playerYEndpoint;
+
+                    DrawTexture(playerCards[i].txte, playerCards[i].startPoint.x, playerCards[i].startPoint.y, WHITE);
+                    if (IsCursorHoverOverCard(&playerCards[i])) {
+                        playerCards[i].startPoint.y = playerYCoordinate + 20;
+                        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) RemoveCardsAtIndex(&playerCards, &cardsQuantity, i);
+                    }
+                    else playerCards[i].startPoint.y = playerYCoordinate;
+                }
             }
         }
         EndDrawing();
@@ -119,7 +117,7 @@ int main()
 }
 
 // Update and draw game frame
-static void UpdateDrawFrame(void)
+/*static void UpdateDrawFrame(void)
 {
     // Update
     //----------------------------------------------------------------------------------
@@ -135,4 +133,4 @@ static void UpdateDrawFrame(void)
 
     EndDrawing();
     //----------------------------------------------------------------------------------
-}
+}*/

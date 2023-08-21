@@ -2,6 +2,7 @@
 #define GAMEFUNCTIONS_H
 
 #include "BladeCards.h"
+#include <stdlib.h>
 
 Card GetRandomCard(void) {
     int determinant = GetRandomValue(1,11);
@@ -49,6 +50,24 @@ bool IsCursorHoverOverCard(Card *card) {
         return true;
 
     return false;
+}
+
+void RemoveCardsAtIndex(Card **array, int *size, int indexToRemove) {
+    if (indexToRemove < 0 || indexToRemove >= *size) {
+        //printf("Invalid index to remove\n");
+        return;
+    }
+
+    // Shift elements after the indexToRemove one position to the left
+    for (int i = indexToRemove; i < (*size) - 1; i++) {
+        (*array)[i] = (*array)[i + 1];
+    }
+
+    // Decrease the size of the array
+    (*size)--;
+
+    // Resize the dynamic array
+    *array = (Card *)realloc(*array, (*size) * sizeof(Card));
 }
 
 #endif // GAMEFUNCTIONS_H
