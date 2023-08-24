@@ -59,7 +59,7 @@ int main()
 
     SetupCardArray(playerCards, cardsQuantity);
     SortCardArray(playerCards, cardsQuantity);
-    const float playerYCoordinate = 10.0f;
+    const float playerYCoordinate = screenHeight - (CARD_HEIGHT + 10.0);
     const float playerYEndpoint = playerYCoordinate + CARD_HEIGHT;
     //--------------------------------------------------------------------------------------
 
@@ -79,13 +79,15 @@ int main()
         {
             ClearBackground(RAYWHITE);
 
+            // The first card is important because it acts as a positioning determinant for all of the other cards.
+            // If no more card is in the player's hand, skip the entire playerCards rendering section.
             if (cardsQuantity > 0) {
-                playerCards[0].startPoint.x = 10.0f;
+                playerCards[0].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*cardsQuantity)/2.0;
                 playerCards[0].endPoint.x = playerCards[0].startPoint.x + CARD_WIDTH;
                 playerCards[0].endPoint.y = playerYEndpoint;
                 DrawTexture(playerCards[0].txte, playerCards[0].startPoint.x, playerCards[0].startPoint.y, WHITE);
                 if (IsCursorHoverOverCard(&playerCards[0])) {
-                    playerCards[0].startPoint.y = playerYCoordinate + 20;
+                    playerCards[0].startPoint.y = playerYCoordinate - 20;
                     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) RemoveCardsAtIndex(&playerCards, &cardsQuantity, 0);
                 }
                 else playerCards[0].startPoint.y = playerYCoordinate;
@@ -97,7 +99,7 @@ int main()
 
                     DrawTexture(playerCards[i].txte, playerCards[i].startPoint.x, playerCards[i].startPoint.y, WHITE);
                     if (IsCursorHoverOverCard(&playerCards[i])) {
-                        playerCards[i].startPoint.y = playerYCoordinate + 20;
+                        playerCards[i].startPoint.y = playerYCoordinate - 20;
                         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) RemoveCardsAtIndex(&playerCards, &cardsQuantity, i);
                     }
                     else playerCards[i].startPoint.y = playerYCoordinate;
