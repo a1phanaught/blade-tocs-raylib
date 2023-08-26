@@ -70,4 +70,29 @@ void RemoveCardsAtIndex(Card **array, int *size, int indexToRemove) {
     *array = (Card *)realloc(*array, (*size) * sizeof(Card));
 }
 
+void AddCardToDeck(Card **array, int *size, Card value) {
+    // Check if the array is NULL, initialize it if it is.
+    /*if (*array == NULL) {
+        *size = 0;
+        *array = malloc(sizeof(int)); // Allocate memory for one integer.
+        if (*array == NULL) {
+            perror("Memory allocation failed");
+            exit(1);
+        }
+    }*/
+
+    // Resize the array to accommodate the new value.
+    *size += 1;
+    Card *temp = realloc(*array, (*size) * sizeof(Card));
+    if (temp == NULL) {
+        perror("Memory reallocation failed");
+        exit(1);
+    } else {
+        *array = temp;
+    }
+
+    // Add the value to the end of the array.
+    (*array)[*size - 1] = value;
+}
+
 #endif // GAMEFUNCTIONS_H

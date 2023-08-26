@@ -53,12 +53,14 @@ int main()
     // Must initialise cards before use
     CardsInit();
 
-    int cardsQuantity = 10;
+    int playerCardsQuantity = 10;
+    int playerDeckQuantity = 0;
     // Card array must be dynamic
-    Card *playerCards = (Card*)calloc(cardsQuantity, sizeof(Card));
+    Card *playerCards = (Card*)calloc(playerCardsQuantity, sizeof(Card));
+    Card *playerDeck = (Card*)calloc(playerDeckQuantity, sizeof(Card));
 
-    SetupCardArray(playerCards, cardsQuantity);
-    SortCardArray(playerCards, cardsQuantity);
+    SetupCardArray(playerCards, playerCardsQuantity);
+    SortCardArray(playerCards, playerCardsQuantity);
     const float playerYCoordinate = screenHeight - (CARD_HEIGHT + 10.0);
     const float playerYEndpoint = playerYCoordinate + CARD_HEIGHT;
     //--------------------------------------------------------------------------------------
@@ -81,18 +83,21 @@ int main()
 
             // The first card is important because it acts as a positioning determinant for all of the other cards.
             // If no more card is in the player's hand, skip the entire playerCards rendering section.
-            if (cardsQuantity > 0) {
-                playerCards[0].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*cardsQuantity)/2.0;
+            if (playerCardsQuantity > 0) {
+                playerCards[0].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*playerCardsQuantity)/2.0;
                 playerCards[0].endPoint.x = playerCards[0].startPoint.x + CARD_WIDTH;
                 playerCards[0].endPoint.y = playerYEndpoint;
                 DrawTexture(playerCards[0].txte, playerCards[0].startPoint.x, playerCards[0].startPoint.y, WHITE);
                 if (IsCursorHoverOverCard(&playerCards[0])) {
                     playerCards[0].startPoint.y = playerYCoordinate - 20;
-                    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) RemoveCardsAtIndex(&playerCards, &cardsQuantity, 0);
+                    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                        AddCardToDeck(&playerDeck, &playerDeckQuantity, playerCards[0]);
+                        RemoveCardsAtIndex(&playerCards, &playerCardsQuantity, 0);
+                    }
                 }
                 else playerCards[0].startPoint.y = playerYCoordinate;
                 
-                for (int i = 1; i < cardsQuantity; i++) {
+                for (int i = 1; i < playerCardsQuantity; i++) {
                     playerCards[i].startPoint.x = playerCards[i-1].endPoint.x + 10.0f;
                     playerCards[i].endPoint.x = playerCards[i].startPoint.x + CARD_WIDTH;
                     playerCards[i].endPoint.y = playerYEndpoint;
@@ -100,15 +105,30 @@ int main()
                     DrawTexture(playerCards[i].txte, playerCards[i].startPoint.x, playerCards[i].startPoint.y, WHITE);
                     if (IsCursorHoverOverCard(&playerCards[i])) {
                         playerCards[i].startPoint.y = playerYCoordinate - 20;
-                        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) RemoveCardsAtIndex(&playerCards, &cardsQuantity, i);
+                        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                            AddCardToDeck(&playerDeck, &playerDeckQuantity, playerCards[i]);
+                            RemoveCardsAtIndex(&playerCards, &playerCardsQuantity, i);
+                        }
                     }
                     else playerCards[i].startPoint.y = playerYCoordinate;
                 }
             }
+            // End playerCards rendering section
+
+            // Start playerDeck (played cards) rendering section
+            for (int i = 0; i < playerDeckQuantity; i++) {
+                DrawTexture(playerDeck[i].txte, 100, 100, WHITE);
+            }
+            
         }
         EndDrawing();
     }
 #endif
+
+    // Free everything here
+    
+    free(playerCards);
+    free(playerDeck);
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
