@@ -57,7 +57,7 @@ int main()
     int playerDeckQuantity = 0;
     // Card array must be dynamic
     Card *playerCards = (Card*)calloc(playerCardsQuantity, sizeof(Card));
-    Card *playerDeck = (Card*)calloc(playerDeckQuantity, sizeof(Card));
+    Card *playerDeck = (Card*)malloc(playerDeckQuantity);
 
     SetupCardArray(playerCards, playerCardsQuantity);
     SortCardArray(playerCards, playerCardsQuantity);

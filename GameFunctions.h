@@ -54,7 +54,6 @@ bool IsCursorHoverOverCard(Card *card) {
 
 void RemoveCardsAtIndex(Card **array, int *size, int indexToRemove) {
     if (indexToRemove < 0 || indexToRemove >= *size) {
-        //printf("Invalid index to remove\n");
         return;
     }
 
@@ -71,15 +70,6 @@ void RemoveCardsAtIndex(Card **array, int *size, int indexToRemove) {
 }
 
 void AddCardToDeck(Card **array, int *size, Card value) {
-    // Check if the array is NULL, initialize it if it is.
-    /*if (*array == NULL) {
-        *size = 0;
-        *array = malloc(sizeof(int)); // Allocate memory for one integer.
-        if (*array == NULL) {
-            perror("Memory allocation failed");
-            exit(1);
-        }
-    }*/
 
     // Resize the array to accommodate the new value.
     *size += 1;

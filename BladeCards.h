@@ -3,99 +3,75 @@
 
 #include "raylib.h"
 
-enum effects{BLAST, BOLT, FORCE, MIRROR};
+enum effects{NONE, BLAST, BOLT, FORCE, MIRROR};
 
 typedef struct Card {
     Texture2D txte;
-    // Card startPoint is where the upper left corner of the card is located
-    // Card endPoint is where the lower right corner of the card is located
+    int value, indexValue;
+    enum effects effect;
+    // Card startPoint is where the upper left (LHS) corner of the card is located
+    // Card endPoint is where the lower right (RHS) corner of the card is located
     // The reason I do this is to detect mouse hover and mouse clicks on the card
     Vector2 startPoint, endPoint;
-    int value, indexValue;
-    //char* effect;
-    enum effects effect;
 } Card;
 
 Card one, two, three, four, five, six, seven;
 Card blast, bolt, force, mirror, back;
 
+// Use this to scale Card size in the game.
 const float TEXTURE_SCALING = 0.60;
 
+// Do not adjust anything in this section ---------------------
 const int ACTUAL_CARD_WIDTH = 241;
 const int ACTUAL_CARD_HEIGHT = 319;
 const int CARD_WIDTH = ACTUAL_CARD_WIDTH * TEXTURE_SCALING;
 const int CARD_HEIGHT = ACTUAL_CARD_HEIGHT * TEXTURE_SCALING;
+//-------------------------------------------------------------
 
 void CardsInit(void) {
     Image img = LoadImage("./img/1.png");
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
-    one.txte = LoadTextureFromImage(img);
-    one.value = 1;
-    one.indexValue = one.value;
+    one = (Card){LoadTextureFromImage(img), 1, 1, NONE};
 
     img = LoadImage("./img/2.png");
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
-    two.txte = LoadTextureFromImage(img);
-    two.value = 2;
-    two.indexValue = two.value;
+    two = (Card){LoadTextureFromImage(img), 2, 2, NONE};
 
     img = LoadImage("./img/3.png");
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
-    three.txte = LoadTextureFromImage(img);
-    three.value = 3;
-    three.indexValue = three.value;
+    three = (Card){LoadTextureFromImage(img), 3, 3, NONE};
 
     img = LoadImage("./img/4.png");
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
-    four.txte = LoadTextureFromImage(img);
-    four.value = 4;
-    four.indexValue = four.value;
+    four = (Card){LoadTextureFromImage(img), 4, 4, NONE};
 
     img = LoadImage("./img/5.png");
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
-    five.txte = LoadTextureFromImage(img);
-    five.value = 5;
-    five.indexValue = five.value;
+    five = (Card){LoadTextureFromImage(img), 5, 5, NONE};
 
     img = LoadImage("./img/6.png");
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
-    six.txte = LoadTextureFromImage(img);
-    six.value = 6;
-    six.indexValue = six.value;
+    six = (Card){LoadTextureFromImage(img), 6, 6, NONE};
 
     img = LoadImage("./img/7.png");
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
-    seven.txte = LoadTextureFromImage(img);
-    seven.value = 7;
-    seven.indexValue = seven.value;
+    seven = (Card){LoadTextureFromImage(img), 7, 7, NONE};
 
     img = LoadImage("./img/blast.png");
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
-    blast.txte = LoadTextureFromImage(img);
-    blast.value = 1;
-    blast.indexValue = 0;
-    blast.effect = BLAST;
+    blast = (Card){LoadTextureFromImage(img), 1, 0, BLAST};
     
     img = LoadImage("./img/bolt.png");
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
-    bolt.txte = LoadTextureFromImage(img);
-    bolt.value = 1;
-    bolt.indexValue = 0;
-    bolt.effect = BOLT;
+    bolt = (Card){LoadTextureFromImage(img), 1, 0, BOLT};
 
     img = LoadImage("./img/force.png");
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
-    force.txte = LoadTextureFromImage(img);
-    force.value = 1;
-    force.indexValue = 0;
-    force.effect = FORCE;
+    force = (Card){LoadTextureFromImage(img), 1, 0, FORCE};
 
     img = LoadImage("./img/mirror.png");
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
-    mirror.txte = LoadTextureFromImage(img);
-    mirror.value = 1;
-    mirror.indexValue = 0;
-    mirror.effect = MIRROR;
+    mirror = (Card){LoadTextureFromImage(img), 1, 0, MIRROR};
 
     UnloadImage(img);
 }
