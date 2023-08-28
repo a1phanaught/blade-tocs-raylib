@@ -28,6 +28,7 @@ const int CARD_WIDTH = ACTUAL_CARD_WIDTH * TEXTURE_SCALING;
 const int CARD_HEIGHT = ACTUAL_CARD_HEIGHT * TEXTURE_SCALING;
 //-------------------------------------------------------------
 
+// (Card) {Texture2D, value, indexValue, effect}
 void CardsInit(void) {
     Image img = LoadImage("./img/1.png");
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);

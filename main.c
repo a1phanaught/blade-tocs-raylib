@@ -63,6 +63,8 @@ int main()
     SortCardArray(playerCards, playerCardsQuantity);
     const float playerYCoordinate = screenHeight - (CARD_HEIGHT + 10.0);
     const float playerYEndpoint = playerYCoordinate + CARD_HEIGHT;
+    const float deckYCoordinate = playerYCoordinate - CARD_HEIGHT - 50.0;
+    const float deckYEndpoint = deckYCoordinate + CARD_HEIGHT;
     //--------------------------------------------------------------------------------------
 
 #if defined(PLATFORM_WEB)
@@ -116,8 +118,8 @@ int main()
             // End playerCards rendering section
 
             // Start playerDeck (played cards) rendering section
-            for (int i = 0; i < playerDeckQuantity; i++) {
-                DrawTexture(playerDeck[i].txte, 100, 100, WHITE);
+            for (int i = 0, x = screenWidth - 500; i < playerDeckQuantity; i++) {
+                DrawTexture(playerDeck[i].txte, x -= CARD_WIDTH/2, deckYCoordinate, WHITE);
             }
             
         }
