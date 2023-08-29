@@ -63,8 +63,9 @@ int main()
     SortCardArray(playerCards, playerCardsQuantity);
     const float playerYCoordinate = screenHeight - (CARD_HEIGHT + 10.0);
     const float playerYEndpoint = playerYCoordinate + CARD_HEIGHT;
-    const float deckYCoordinate = playerYCoordinate - CARD_HEIGHT - 50.0;
-    const float deckYEndpoint = deckYCoordinate + CARD_HEIGHT;
+
+    const float playerDeckYCoordinate = playerYCoordinate - CARD_HEIGHT - 50.0;
+    const float deckYEndpoint = playerDeckYCoordinate + CARD_HEIGHT;
     //--------------------------------------------------------------------------------------
 
 #if defined(PLATFORM_WEB)
@@ -117,11 +118,18 @@ int main()
             }
             // End playerCards rendering section
 
+            int val = 0;
             // Start playerDeck (played cards) rendering section
-            for (int i = 0, x = screenWidth - 500; i < playerDeckQuantity; i++) {
-                DrawTexture(playerDeck[i].txte, x -= CARD_WIDTH/2, deckYCoordinate, WHITE);
+            for (int i = 0, x = screenWidth - 200; i < playerDeckQuantity; i++) {
+                DrawTexture(playerDeck[i].txte, x -= CARD_WIDTH/2, playerDeckYCoordinate, WHITE);
+                if (playerDeck[i].effect == NONE) val += playerDeck[i].value;
             }
             
+            char playerDeckValue[3];
+            itoa(val, playerDeckValue, 10);
+            DrawText("Score", 150, playerDeckYCoordinate, 75, DARKGRAY);
+            DrawText(playerDeckValue, 150, playerDeckYCoordinate + CARD_HEIGHT/2, 75, DARKGRAY);
+
         }
         EndDrawing();
     }
