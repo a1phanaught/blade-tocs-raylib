@@ -49,7 +49,7 @@ int main()
     const int screenWidth = 1600;
     const int screenHeight = 900;
 
-    InitWindow(screenWidth, screenHeight, "raylib");
+    InitWindow(screenWidth, screenHeight, "Blade");
     // Must initialise cards before use
     CardsInit();
 
@@ -65,7 +65,6 @@ int main()
     const float playerYEndpoint = playerYCoordinate + CARD_HEIGHT;
 
     const float playerDeckYCoordinate = playerYCoordinate - CARD_HEIGHT - 50.0;
-    const float deckYEndpoint = playerDeckYCoordinate + CARD_HEIGHT;
     //--------------------------------------------------------------------------------------
 
 #if defined(PLATFORM_WEB)
@@ -95,7 +94,7 @@ int main()
                     playerCards[0].startPoint.y = playerYCoordinate - 20;
                     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                         AddCardToDeck(&playerDeck, &playerDeckQuantity, playerCards[0]);
-                        RemoveCardsAtIndex(&playerCards, &playerCardsQuantity, 0);
+                        RemoveCardAtIndex(&playerCards, &playerCardsQuantity, 0);
                     }
                 }
                 else playerCards[0].startPoint.y = playerYCoordinate;
@@ -110,7 +109,7 @@ int main()
                         playerCards[i].startPoint.y = playerYCoordinate - 20;
                         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                             AddCardToDeck(&playerDeck, &playerDeckQuantity, playerCards[i]);
-                            RemoveCardsAtIndex(&playerCards, &playerCardsQuantity, i);
+                            RemoveCardAtIndex(&playerCards, &playerCardsQuantity, i);
                         }
                     }
                     else playerCards[i].startPoint.y = playerYCoordinate;

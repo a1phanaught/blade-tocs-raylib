@@ -4,24 +4,35 @@
 #include "BladeCards.h"
 #include <stdlib.h>
 
-Card GetRandomCard(void) {
-    int determinant = GetRandomValue(1,11);
+// Get random card, but ensure that no specific card appears
+// more than twice on player's hand.
+Card GetRandomCard(int *determinantArr) {
+    int determinant = GetRandomValue(1,8);
+
+    while (determinantArr[determinant-1] >= 2)
+        determinant = determinant > 7 ? 1 : determinant + 1;
+        
+    determinantArr[determinant-1]++;
 
     switch (determinant) {
         case 1: return one;    case 2: return two;
         case 3: return three;  case 4: return four;
         case 5: return five;   case 6: return six;
-        case 7: return seven;  case 8: return blast;
-        case 9: return bolt;   case 10: return force;
-        case 11: return mirror;
+        case 7: return seven;
+        case 8:
+            switch (GetRandomValue(1,4)) {
+                case 1: return blast; case 2: return bolt;
+                case 3: return force; case 4: return mirror;
+            }
     }
 
     return back;
 }
 
 void SetupCardArray(Card *cardArr, int cardQuantity) {
+    int *detArr = (int*)calloc(11, sizeof(int));
     for (int i = 0; i < cardQuantity; i++) {
-        cardArr[i] = GetRandomCard();
+        cardArr[i] = GetRandomCard(detArr);
     }
     return;
 }
@@ -52,7 +63,7 @@ bool IsCursorHoverOverCard(Card *card) {
     return false;
 }
 
-void RemoveCardsAtIndex(Card **array, int *size, int indexToRemove) {
+void RemoveCardAtIndex(Card **array, int *size, int indexToRemove) {
     if (indexToRemove < 0 || indexToRemove >= *size) {
         return;
     }

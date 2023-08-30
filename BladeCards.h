@@ -3,7 +3,7 @@
 
 #include "raylib.h"
 
-enum effects{NONE, BLAST, BOLT, FORCE, MIRROR};
+enum effects{NONE, BLAST, BOLT, FORCE, MIRROR, REVIVE};
 
 typedef struct Card {
     Texture2D txte;
@@ -32,7 +32,7 @@ const int CARD_HEIGHT = ACTUAL_CARD_HEIGHT * TEXTURE_SCALING;
 void CardsInit(void) {
     Image img = LoadImage("./img/1.png");
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
-    one = (Card){LoadTextureFromImage(img), 1, 1, NONE};
+    one = (Card){LoadTextureFromImage(img), 1, 1, REVIVE};
 
     img = LoadImage("./img/2.png");
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
