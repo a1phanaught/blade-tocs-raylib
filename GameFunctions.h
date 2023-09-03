@@ -4,14 +4,15 @@
 #include "BladeCards.h"
 #include <stdlib.h>
 
-// Get random card, but ensure that no specific card appears
+// Get random card, but ensure that no specific type of card appears
 // more than twice on player's hand.
 Card GetRandomCard(int *determinantArr) {
     int determinant = GetRandomValue(1,8);
 
     while (determinantArr[determinant-1] >= 2)
         determinant = determinant > 7 ? 1 : determinant + 1;
-        
+
+    // Hashtable ftw (^ _ ^)b
     determinantArr[determinant-1]++;
 
     switch (determinant) {
@@ -25,7 +26,6 @@ Card GetRandomCard(int *determinantArr) {
                 case 3: return force; case 4: return mirror;
             }
     }
-
     return back;
 }
 

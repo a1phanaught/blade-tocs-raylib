@@ -1,21 +1,7 @@
 /*******************************************************************************************
 *
-*   raylib [core] example - Basic 3d example
-*
-*   Welcome to raylib!
-*
-*   To compile example, just press F5.
+*   To compile the game, just press F5.
 *   Note that compiled executable is placed in the same folder as .c file
-*
-*   You can find all basic examples on C:\raylib\raylib\examples folder or
-*   raylib official webpage: www.raylib.com
-*
-*   Enjoy using raylib. :)
-*
-*   This example has been created using raylib 1.0 (www.raylib.com)
-*   raylib is licensed under an unmodified zlib/libpng license (View raylib.h for details)
-*
-*   Copyright (c) 2013-2023 Ramon Santamaria (@raysan5)
 *
 ********************************************************************************************/
 
@@ -38,6 +24,7 @@
 // Local Functions Declaration
 //----------------------------------------------------------------------------------
 //static void UpdateDrawFrame(void);          // Update and draw one frame
+void PrepareCards(Card *cardArr, int sz);
 
 //----------------------------------------------------------------------------------
 // Main entry point
@@ -46,24 +33,29 @@ int main()
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = 1600;
-    const int screenHeight = 900;
+    const int screenWidth = 1600, screenHeight = 900;
 
     InitWindow(screenWidth, screenHeight, "Blade");
     // Must initialise cards before use
     CardsInit();
 
-    int playerCardsQuantity = 10;
-    int playerDeckQuantity = 0;
+    int buf[10];
+    int playerCardsQuantity = 10, opponentCardsQuantity = 10;
+    int playerDeckQuantity = 1, opponentDeckQuantity = 1;
+    int playerVal = 0, opponentVal = 0;
     // Card array must be dynamic
     Card *playerCards = (Card*)calloc(playerCardsQuantity, sizeof(Card));
-    Card *playerDeck = (Card*)malloc(playerDeckQuantity);
+    PrepareCards(playerCards, playerCardsQuantity);
+    Card *playerDeck = (Card*)calloc(playerDeckQuantity, sizeof(Card));
+    *playerDeck = GetRandomCard(buf);
 
-    SetupCardArray(playerCards, playerCardsQuantity);
-    SortCardArray(playerCards, playerCardsQuantity);
-    const float playerYCoordinate = screenHeight - (CARD_HEIGHT + 10.0);
-    const float playerYEndpoint = playerYCoordinate + CARD_HEIGHT;
+    Card *opponentCards = (Card*)calloc(opponentCardsQuantity, sizeof(Card));
+    PrepareCards(opponentCards, opponentCardsQuantity);
+    Card *opponentDeck = (Card*)calloc(opponentDeckQuantity, sizeof(Card));
+    *opponentDeck = GetRandomCard(buf);
 
+    const float playerYCoordinate = screenHeight - (CARD_HEIGHT + 10.0), opponentYCoordinate = 10.0;
+    const float playerYEndpoint = playerYCoordinate + CARD_HEIGHT, opponentYEndpoint = opponentYCoordinate + CARD_HEIGHT;
     const float playerDeckYCoordinate = playerYCoordinate - CARD_HEIGHT - 50.0;
     //--------------------------------------------------------------------------------------
 
@@ -85,6 +77,9 @@ int main()
 
             // The first card is important because it acts as a positioning determinant for all of the other cards.
             // If no more card is in the player's hand, skip the entire playerCards rendering section.
+
+            // Alas, begin rendering playerCards...
+
             if (playerCardsQuantity > 0) {
                 playerCards[0].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*playerCardsQuantity)/2.0;
                 playerCards[0].endPoint.x = playerCards[0].startPoint.x + CARD_WIDTH;
@@ -93,7 +88,8 @@ int main()
                 if (IsCursorHoverOverCard(&playerCards[0])) {
                     playerCards[0].startPoint.y = playerYCoordinate - 20;
                     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                        AddCardToDeck(&playerDeck, &playerDeckQuantity, playerCards[0]);
+                        if (playerCards[0].effect == NONE || playerCards[0].effect == REVIVE)
+                            AddCardToDeck(&playerDeck, &playerDeckQuantity, playerCards[0]);
                         RemoveCardAtIndex(&playerCards, &playerCardsQuantity, 0);
                     }
                 }
@@ -108,24 +104,31 @@ int main()
                     if (IsCursorHoverOverCard(&playerCards[i])) {
                         playerCards[i].startPoint.y = playerYCoordinate - 20;
                         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                            AddCardToDeck(&playerDeck, &playerDeckQuantity, playerCards[i]);
+                            if (playerCards[i].effect == NONE || playerCards[i].effect == REVIVE)
+                                AddCardToDeck(&playerDeck, &playerDeckQuantity, playerCards[i]);
                             RemoveCardAtIndex(&playerCards, &playerCardsQuantity, i);
                         }
                     }
                     else playerCards[i].startPoint.y = playerYCoordinate;
                 }
             }
-            // End playerCards rendering section
 
-            int val = 0;
+            // End playerCards rendering section
+            // Start opponentCards rendering section
+
+
+
+            // End opponentCards rendering section
             // Start playerDeck (played cards) rendering section
+            int val = 0;
+
             for (int i = 0, x = screenWidth - 200; i < playerDeckQuantity; i++) {
                 DrawTexture(playerDeck[i].txte, x -= CARD_WIDTH/2, playerDeckYCoordinate, WHITE);
-                if (playerDeck[i].effect == NONE) val += playerDeck[i].value;
+                val += playerDeck[i].value;
             }
-            
+            playerVal = val;
             char playerDeckValue[3];
-            itoa(val, playerDeckValue, 10);
+            itoa(playerVal, playerDeckValue, 10);
             DrawText("Score", 150, playerDeckYCoordinate, 75, DARKGRAY);
             DrawText(playerDeckValue, 150, playerDeckYCoordinate + CARD_HEIGHT/2, 75, DARKGRAY);
 
@@ -138,6 +141,8 @@ int main()
     
     free(playerCards);
     free(playerDeck);
+    free(opponentCards);
+    free(opponentDeck);
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
@@ -147,21 +152,7 @@ int main()
     return 0;
 }
 
-// Update and draw game frame
-/*static void UpdateDrawFrame(void)
-{
-    // Update
-    //----------------------------------------------------------------------------------
-    //----------------------------------------------------------------------------------
-    // Draw
-    //----------------------------------------------------------------------------------
-    BeginDrawing();
-
-        ClearBackground(RAYWHITE);
-
-        DrawText("This is a raylib example", 10, 40, 20, DARKGRAY);
-        DrawFPS(10, 10);
-
-    EndDrawing();
-    //----------------------------------------------------------------------------------
-}*/
+void PrepareCards(Card *cardArr, int sz) {
+    SetupCardArray(cardArr, sz);
+    SortCardArray(cardArr, sz);
+}
