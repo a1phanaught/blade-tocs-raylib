@@ -19,6 +19,7 @@
 // Local Variables Definition (local to this module)
 //----------------------------------------------------------------------------------
 
+enum FLAGS {PLAYER_MOVE, OPPONENT_MOVE, RESET_DECK};
 
 //----------------------------------------------------------------------------------
 // Local Functions Declaration
@@ -56,7 +57,8 @@ int main()
 
     const float playerYCoordinate = screenHeight - (CARD_HEIGHT + 10.0), opponentYCoordinate = 10.0;
     const float playerYEndpoint = playerYCoordinate + CARD_HEIGHT, opponentYEndpoint = opponentYCoordinate + CARD_HEIGHT;
-    const float playerDeckYCoordinate = playerYCoordinate - CARD_HEIGHT - 50.0;
+    const float playerDeckYCoordinate = playerYCoordinate - CARD_HEIGHT - 50.0,
+    opponentDeckYCoordinate = opponentYCoordinate + CARD_HEIGHT + 50.0;
     //--------------------------------------------------------------------------------------
 
 #if defined(PLATFORM_WEB)
@@ -84,8 +86,7 @@ int main()
                 playerCards[0].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*playerCardsQuantity)/2.0;
                 playerCards[0].endPoint.x = playerCards[0].startPoint.x + CARD_WIDTH;
                 playerCards[0].endPoint.y = playerYEndpoint;
-                DrawTexture(playerCards[0].txte, playerCards[0].startPoint.x, playerCards[0].startPoint.y, WHITE);
-                if (IsCursorHoverOverCard(&playerCards[0])) {
+                if (IsCursorHoverOverCard(&playerCards[0]) && playerVal < opponentVal) {
                     playerCards[0].startPoint.y = playerYCoordinate - 20;
                     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                         if (playerCards[0].effect == NONE || playerCards[0].effect == REVIVE)
@@ -100,8 +101,7 @@ int main()
                     playerCards[i].endPoint.x = playerCards[i].startPoint.x + CARD_WIDTH;
                     playerCards[i].endPoint.y = playerYEndpoint;
 
-                    DrawTexture(playerCards[i].txte, playerCards[i].startPoint.x, playerCards[i].startPoint.y, WHITE);
-                    if (IsCursorHoverOverCard(&playerCards[i])) {
+                    if (IsCursorHoverOverCard(&playerCards[i]) && playerVal < opponentVal) {
                         playerCards[i].startPoint.y = playerYCoordinate - 20;
                         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                             if (playerCards[i].effect == NONE || playerCards[i].effect == REVIVE)
@@ -111,17 +111,34 @@ int main()
                     }
                     else playerCards[i].startPoint.y = playerYCoordinate;
                 }
+
+                for (int i = 0; i < playerCardsQuantity; i++)
+                    DrawTexture(playerCards[i].txte, playerCards[i].startPoint.x, playerCards[i].startPoint.y, WHITE);
             }
 
             // End playerCards rendering section
             // Start opponentCards rendering section
 
+            if (opponentCardsQuantity > 0) {
 
+                opponentCards[0].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*opponentCardsQuantity)/2.0;
+                opponentCards[0].endPoint.x = opponentCards[0].startPoint.x + CARD_WIDTH;
+                opponentCards[0].endPoint.y = opponentYEndpoint;
+
+                for (int i = 1; i < opponentCardsQuantity; i++) {
+                    opponentCards[i].startPoint.x = opponentCards[i-1].endPoint.x + 10.0f;
+                    opponentCards[i].endPoint.x = opponentCards[i].startPoint.x + CARD_WIDTH;
+                    opponentCards[i].endPoint.y = opponentYEndpoint;
+                }
+
+                for (int i = 0; i < opponentCardsQuantity; i++)
+                    DrawTexture(opponentCards[i].txte, opponentCards[i].startPoint.x, opponentCards[i].startPoint.y, WHITE);
+            }
 
             // End opponentCards rendering section
             // Start playerDeck (played cards) rendering section
-            int val = 0;
 
+            int val = 0;
             for (int i = 0, x = screenWidth - 200; i < playerDeckQuantity; i++) {
                 DrawTexture(playerDeck[i].txte, x -= CARD_WIDTH/2, playerDeckYCoordinate, WHITE);
                 val += playerDeck[i].value;
@@ -131,6 +148,19 @@ int main()
             itoa(playerVal, playerDeckValue, 10);
             DrawText("Score", 150, playerDeckYCoordinate, 75, DARKGRAY);
             DrawText(playerDeckValue, 150, playerDeckYCoordinate + CARD_HEIGHT/2, 75, DARKGRAY);
+
+            // End playerDeck rendering section
+
+            val = 0;
+            for (int i = 0, x = screenWidth - 200; i < playerDeckQuantity; i++) {
+                DrawTexture(opponentDeck[i].txte, x -= CARD_WIDTH/2, opponentDeckYCoordinate, WHITE);
+                val += opponentDeck[i].value;
+            }
+            opponentVal = val;
+            char opponentDeckValue[3];
+            itoa(opponentVal, opponentDeckValue, 10);
+            DrawText("Score", 150, opponentDeckYCoordinate, 75, DARKGRAY);
+            DrawText(opponentDeckValue, 150, opponentDeckYCoordinate + CARD_HEIGHT/2, 75, DARKGRAY);
 
         }
         EndDrawing();
