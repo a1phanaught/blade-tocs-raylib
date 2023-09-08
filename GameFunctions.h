@@ -96,4 +96,18 @@ void AddCardToDeck(Card **array, int *size, Card value) {
     (*array)[*size - 1] = value;
 }
 
+// Make sure to pick a card that has a higher accumulated value than playerVal
+int GetRandomCardIndexCPU(Card *cardArr, int sz, int opponentVal, int playerVal) {
+    //if (*(cardArr + sz - 1) == Card.back);
+
+    int determinant = GetRandomValue(0,sz-1);
+
+    while (cardArr[determinant].value + opponentVal <= playerVal) {
+        determinant++;
+        if (determinant > sz-1) determinant = 0;
+    }
+
+    return determinant;
+}
+
 #endif // GAMEFUNCTIONS_H

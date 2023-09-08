@@ -74,6 +74,10 @@ void CardsInit(void) {
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
     mirror = (Card){LoadTextureFromImage(img), 1, 0, MIRROR};
 
+    img = LoadImage("./img/back.png");
+    ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
+    back = (Card){LoadTextureFromImage(img), 1, 0, NONE};
+
     UnloadImage(img);
 }
 
