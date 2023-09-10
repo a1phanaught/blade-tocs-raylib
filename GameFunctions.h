@@ -84,13 +84,6 @@ void AddCardToDeck(Card **array, int *size, Card value) {
 
     // Resize the array to accommodate the new value.
     *size += 1;
-    Card *temp = realloc(*array, (*size) * sizeof(Card));
-    if (temp == NULL) {
-        perror("Memory reallocation failed");
-        exit(1);
-    } else {
-        *array = temp;
-    }
 
     // Add the value to the end of the array.
     (*array)[*size - 1] = value;
