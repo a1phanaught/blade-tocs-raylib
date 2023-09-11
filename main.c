@@ -50,8 +50,3 @@ int main()
 
     return 0;
 }
-
-void PrepareCards(Card *cardArr, int sz) {
-    SetupCardArray(cardArr, sz);
-    SortCardArray(cardArr, sz);
-}

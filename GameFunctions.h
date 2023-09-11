@@ -77,7 +77,7 @@ void RemoveCardAtIndex(Card **array, int *size, int indexToRemove) {
     (*size)--;
 
     // Resize the dynamic array
-    *array = (Card *)realloc(*array, (*size) * sizeof(Card));
+    //*array = (Card *)realloc(*array, (*size) * sizeof(Card));
 }
 
 void AddCardToDeck(Card **array, int *size, Card value) {
@@ -94,10 +94,12 @@ int GetRandomCardIndexCPU(Card *cardArr, int sz, int opponentVal, int playerVal)
     //if (*(cardArr + sz - 1) == Card.back);
 
     int determinant = GetRandomValue(0,sz-1);
+    int limit = determinant;
 
     while (cardArr[determinant].value + opponentVal <= playerVal) {
         determinant++;
         if (determinant > sz-1) determinant = 0;
+        if (limit == determinant) return -1;
     }
 
     return determinant;
