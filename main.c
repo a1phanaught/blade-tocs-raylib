@@ -1,5 +1,8 @@
 /*******************************************************************************************
 *
+*   Make sure that you have Raylib installed on your machine. You can get Raylib at
+*   https://github.com/raysan5/raylib/wiki/Working-on-Windows if you're on Windows.
+*
 *   To compile the game, just press F5.
 *   Note that compiled executable is placed in the same folder as .c file
 *

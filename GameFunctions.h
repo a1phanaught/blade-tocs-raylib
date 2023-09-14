@@ -105,4 +105,10 @@ int GetRandomCardIndexCPU(Card *cardArr, int sz, int opponentVal, int playerVal)
     return determinant;
 }
 
+void SwapDeck(Card **deck1, Card **deck2) {
+    Card *temp = *deck1;
+    *deck1 = *deck2;
+    *deck2 = temp;
+}
+
 #endif // GAMEFUNCTIONS_H

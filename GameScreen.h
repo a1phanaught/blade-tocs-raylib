@@ -4,14 +4,14 @@
 #include "raylib.h"
 #include "BladeCards.h"
 #include "GameFunctions.h"
+#include "CardDeck.h"
 
 //----------------------------------------------------------------------------------
 // Local Variables Definition (local to this module)
 //----------------------------------------------------------------------------------
 
-enum FLAGS {PLAYER_MOVE, OPPONENT_MOVE, RESET_DECK, PLAYER_LOST, CPU_LOST} FLAG;
+enum GAME_FLAGS {PLAYER_MOVE, OPPONENT_MOVE, RESET_DECK, PLAYER_LOST, CPU_LOST} GAME_FLAG;
 int PLAYER_VALUE = 0, OPPONENT_VALUE = 0;
-int ITER = 0;
 
 //----------------------------------------------------------------------------------
 // Local Functions Declaration
@@ -26,17 +26,16 @@ void PlayGame(int screenWidth, int screenHeight) {
 
     int buf[10];
     int playerCardsQuantity = 10, opponentCardsQuantity = 10;
-    int playerDeckQuantity = 0, opponentDeckQuantity = 0;
     bool IsMouseClicked = false;
     
     // Card array must be dynamic
     Card *playerCards = (Card*)calloc(playerCardsQuantity, sizeof(Card));
     PrepareCards(playerCards, playerCardsQuantity);
-    Card *playerDeck = (Card*)malloc(20 * sizeof(Card));
+    CardDeck playerDeck = {(Card*)malloc(20 * sizeof(Card)), 0, 0};
 
     Card *opponentCards = (Card*)calloc(opponentCardsQuantity, sizeof(Card));
     PrepareCards(opponentCards, opponentCardsQuantity);
-    Card *opponentDeck = (Card*)malloc(20 * sizeof(Card));
+    CardDeck opponentDeck = {(Card*)malloc(20 * sizeof(Card)), 0, 0};
 
     const float playerYCoordinate = screenHeight - (CARD_HEIGHT + 10.0), opponentYCoordinate = 10.0;
     const float playerYEndpoint = playerYCoordinate + CARD_HEIGHT, opponentYEndpoint = opponentYCoordinate + CARD_HEIGHT;
@@ -50,18 +49,18 @@ void PlayGame(int screenWidth, int screenHeight) {
         //UpdateDrawFrame();
         IsMouseClicked = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
 
-        if (FLAG == RESET_DECK) {
-            playerDeckQuantity = opponentDeckQuantity = 1;
-            playerDeck[0] = GetRandomCard(buf);
-            opponentDeck[0] = GetRandomCard(buf);
-            PLAYER_VALUE = playerDeck[0].value;
-            OPPONENT_VALUE = opponentDeck[0].value;
-            FLAG = PLAYER_VALUE > OPPONENT_VALUE ? OPPONENT_MOVE : PLAYER_MOVE;
+        if (GAME_FLAG == RESET_DECK) {
+            playerDeck.deckQuantity = opponentDeck.deckQuantity = 1;
+            playerDeck.deckArr[0] = GetRandomCard(buf);
+            opponentDeck.deckArr[0] = GetRandomCard(buf);
+            playerDeck.deckValue = playerDeck.deckArr[0].value;
+            opponentDeck.deckValue = opponentDeck.deckArr[0].value;
+            GAME_FLAG = playerDeck.deckValue > opponentDeck.deckValue ? OPPONENT_MOVE : PLAYER_MOVE;
 
         }
 
-        if (PLAYER_VALUE == OPPONENT_VALUE) {
-            FLAG = RESET_DECK;
+        if (playerDeck.deckValue == opponentDeck.deckValue) {
+            GAME_FLAG = RESET_DECK;
             continue;
         }
 
@@ -77,15 +76,35 @@ void PlayGame(int screenWidth, int screenHeight) {
             playerCards[i].endPoint.x = playerCards[i].startPoint.x + CARD_WIDTH;
             playerCards[i].endPoint.y = playerYEndpoint;
 
-            if (IsCursorHoverOverCard(&playerCards[i]) && FLAG == PLAYER_MOVE) {
+            if (IsCursorHoverOverCard(&playerCards[i]) && GAME_FLAG == PLAYER_MOVE) {
                 playerCards[i].startPoint.y = playerYCoordinate - 20;
                 if (IsMouseClicked) {
-                    if (playerCards[i].effect == NONE || playerCards[i].effect == REVIVE) {
-                        AddCardToDeck(&playerDeck, &playerDeckQuantity, playerCards[i]);
+                    /*if (playerCards[i].effect == NONE || playerCards[i].effect == REVIVE) {
+                        AddCardToDeck(&playerDeck, &playerDeck.deckQuantity, playerCards[i]);
                         PLAYER_VALUE += playerCards[i].value;
+                    }*/
+                    switch (playerCards[i].effect) {
+                        case NONE:
+                        case REVIVE:
+                            if (playerCards[i].effect == REVIVE && playerDeck.deckArr[playerDeck.deckQuantity - 1].effect == DEAD)
+                                // do something in order to revive dead card
+                                goto EffectCheckerEnd;
+                            AddCardToDeck(&playerDeck.deckArr, &playerDeck.deckQuantity, playerCards[i]);
+                            playerDeck.deckValue += playerCards[i].value;
+                            break;
+                        case BOLT:
+                            if (opponentDeck.deckArr[opponentDeck.deckQuantity - 1].effect != DEAD) {
+                                opponentDeck.deckValue -= opponentDeck.deckArr[opponentDeck.deckQuantity - 1].value;
+                                opponentDeck.deckArr[opponentDeck.deckQuantity - 1] = back;
+                            }
+                            break;
+                        /*case MIRROR:
+                            
+                            break;*/
                     }
+                    EffectCheckerEnd: ;
                     RemoveCardAtIndex(&playerCards, &playerCardsQuantity, i);
-                    FLAG = OPPONENT_MOVE;
+                    GAME_FLAG = OPPONENT_MOVE;
                     WaitTime(1);
                 }
             }
@@ -95,18 +114,18 @@ void PlayGame(int screenWidth, int screenHeight) {
 
         //if (opponentCardsQuantity > 0) {
 
-        if (FLAG == OPPONENT_MOVE) {    
-            int CPUChosenIndex = GetRandomCardIndexCPU(opponentCards, opponentCardsQuantity, OPPONENT_VALUE, PLAYER_VALUE);
+        if (GAME_FLAG == OPPONENT_MOVE) {    
+            int CPUChosenIndex = GetRandomCardIndexCPU(opponentCards, opponentCardsQuantity, opponentDeck.deckValue, playerDeck.deckValue);
             if (CPUChosenIndex < 0) {
-                FLAG = CPU_LOST;
+                GAME_FLAG = CPU_LOST;
                 continue;
             }
             if (opponentCards[CPUChosenIndex].effect == NONE || opponentCards[CPUChosenIndex].effect == REVIVE) {
-                AddCardToDeck(&opponentDeck, &opponentDeckQuantity, opponentCards[CPUChosenIndex]);
-                OPPONENT_VALUE += opponentCards[CPUChosenIndex].value;
+                AddCardToDeck(&opponentDeck.deckArr, &opponentDeck.deckQuantity, opponentCards[CPUChosenIndex]);
+                opponentDeck.deckValue += opponentCards[CPUChosenIndex].value;
             }
             RemoveCardAtIndex(&opponentCards, &opponentCardsQuantity, CPUChosenIndex);
-            FLAG = PLAYER_MOVE;
+            GAME_FLAG = PLAYER_MOVE;
         }
 
         opponentCards[0].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*opponentCardsQuantity)/2.0;
@@ -125,7 +144,7 @@ void PlayGame(int screenWidth, int screenHeight) {
         {
             ClearBackground(RAYWHITE);
 
-            /*switch (FLAG) {
+            /*switch (GAME_FLAG) {
                 // Do something here...
                 case CPU_LOST:
                     continue;
@@ -138,8 +157,8 @@ void PlayGame(int screenWidth, int screenHeight) {
             for (int i = 0; i < playerCardsQuantity; i++)
                 DrawTexture(playerCards[i].txte, playerCards[i].startPoint.x, playerCards[i].startPoint.y, WHITE);
 
-            if (PLAYER_VALUE == OPPONENT_VALUE) {
-                FLAG = RESET_DECK;
+            if (playerDeck.deckValue == opponentDeck.deckValue) {
+                GAME_FLAG = RESET_DECK;
                 continue;
             }
 
@@ -152,16 +171,16 @@ void PlayGame(int screenWidth, int screenHeight) {
             // End opponentCards rendering section
             // Start Deck (played cards) rendering section
 
-            for (int i = 0, playerX = screenWidth - 200; i < playerDeckQuantity; i++)
-                DrawTexture(playerDeck[i].txte, playerX -= CARD_WIDTH/2, playerDeckYCoordinate, WHITE);
+            for (int i = 0, playerX = screenWidth - 200; i < playerDeck.deckQuantity; i++)
+                DrawTexture(playerDeck.deckArr[i].txte, playerX -= CARD_WIDTH/2, playerDeckYCoordinate, WHITE);
 
-            for (int i = 0, opponentX = screenWidth - 200; i < opponentDeckQuantity; i++)
-                DrawTexture(opponentDeck[i].txte, opponentX -= CARD_WIDTH/2, opponentDeckYCoordinate, WHITE);
+            for (int i = 0, opponentX = screenWidth - 200; i < opponentDeck.deckQuantity; i++)
+                DrawTexture(opponentDeck.deckArr[i].txte, opponentX -= CARD_WIDTH/2, opponentDeckYCoordinate, WHITE);
 
             char playerDeckValue[3], opponentDeckValue[3];
             
-            itoa(PLAYER_VALUE, playerDeckValue, 10);
-            itoa(OPPONENT_VALUE, opponentDeckValue, 10);
+            itoa(playerDeck.deckValue, playerDeckValue, 10);
+            itoa(opponentDeck.deckValue, opponentDeckValue, 10);
 
             DrawText("Score", 150, playerDeckYCoordinate, 75, DARKGRAY);
             DrawText(playerDeckValue, 150, playerDeckYCoordinate + CARD_HEIGHT/2, 75, DARKGRAY);
@@ -176,9 +195,9 @@ void PlayGame(int screenWidth, int screenHeight) {
     // Free everything here
     
     free(playerCards);
-    free(playerDeck);
+    free(playerDeck.deckArr);
     free(opponentCards);
-    free(opponentDeck);
+    free(opponentDeck.deckArr);
 }
 
 void PrepareCards(Card *cardArr, int sz) {
