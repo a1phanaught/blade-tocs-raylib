@@ -61,10 +61,9 @@ void PlayGame(int screenWidth, int screenHeight) {
 
         if (playerDeck.deckValue == opponentDeck.deckValue) {
             GAME_FLAG = RESET_DECK;
+            EndDrawing();
             continue;
         }
-
-        //if (playerCardsQuantity > 0) {
 
         for (int i = 0; i < playerCardsQuantity; i++) {
             
@@ -83,12 +82,12 @@ void PlayGame(int screenWidth, int screenHeight) {
                         AddCardToDeck(&playerDeck, &playerDeck.deckQuantity, playerCards[i]);
                         PLAYER_VALUE += playerCards[i].value;
                     }*/
-                    switch (playerCards[i].effect) {
+                    /*switch (playerCards[i].effect) {
                         case NONE:
                         case REVIVE:
                             if (playerCards[i].effect == REVIVE && playerDeck.deckArr[playerDeck.deckQuantity - 1].effect == DEAD)
                                 // do something in order to revive dead card
-                                goto EffectCheckerEnd;
+                                break;
                             AddCardToDeck(&playerDeck.deckArr, &playerDeck.deckQuantity, playerCards[i]);
                             playerDeck.deckValue += playerCards[i].value;
                             break;
@@ -98,11 +97,14 @@ void PlayGame(int screenWidth, int screenHeight) {
                                 opponentDeck.deckArr[opponentDeck.deckQuantity - 1] = back;
                             }
                             break;
-                        /*case MIRROR:
-                            
-                            break;*/
-                    }
-                    EffectCheckerEnd: ;
+                        // Swap opponent's deck with player's deck
+                        case MIRROR:
+                            CardDeck storedDeck = opponentDeck;
+                            opponentDeck = playerDeck;
+                            playerDeck = storedDeck;
+                            break;
+                    }*/
+                    ExertCardEffect(playerCards[i], &playerDeck, &opponentDeck);
                     RemoveCardAtIndex(&playerCards, &playerCardsQuantity, i);
                     GAME_FLAG = OPPONENT_MOVE;
                     WaitTime(1);
@@ -110,9 +112,12 @@ void PlayGame(int screenWidth, int screenHeight) {
             }
             else playerCards[i].startPoint.y = playerYCoordinate;
         }
-       // }
 
-        //if (opponentCardsQuantity > 0) {
+        if (playerDeck.deckValue == opponentDeck.deckValue) {
+            GAME_FLAG = RESET_DECK;
+            EndDrawing();
+            continue;
+        }
 
         if (GAME_FLAG == OPPONENT_MOVE) {    
             int CPUChosenIndex = GetRandomCardIndexCPU(opponentCards, opponentCardsQuantity, opponentDeck.deckValue, playerDeck.deckValue);
@@ -137,7 +142,6 @@ void PlayGame(int screenWidth, int screenHeight) {
             opponentCards[i].endPoint.x = opponentCards[i].startPoint.x + CARD_WIDTH;
             opponentCards[i].endPoint.y = opponentYEndpoint;
         }
-        //}
 
         // Reminder that you're still within a loop, so don't worry too much about updating the position of cards...
         BeginDrawing();

@@ -2,6 +2,7 @@
 #define GAMEFUNCTIONS_H
 
 #include "BladeCards.h"
+#include "CardDeck.h"
 #include <stdlib.h>
 
 // Get random card, but ensure that no specific type of card appears
@@ -105,10 +106,31 @@ int GetRandomCardIndexCPU(Card *cardArr, int sz, int opponentVal, int playerVal)
     return determinant;
 }
 
-void SwapDeck(Card **deck1, Card **deck2) {
-    Card *temp = *deck1;
-    *deck1 = *deck2;
-    *deck2 = temp;
+void ExertCardEffect(Card usedCard, CardDeck *currentDeck, CardDeck *exertedDeck) {
+    switch (usedCard.effect) {
+        case NONE:
+        case REVIVE:
+            if (usedCard.effect == REVIVE && currentDeck->deckArr[currentDeck->deckQuantity - 1].effect == DEAD)
+                // do something in order to revive dead card
+                break;
+            AddCardToDeck(&(currentDeck->deckArr), &(currentDeck->deckQuantity), usedCard);
+            currentDeck->deckValue += usedCard.value;
+            break;
+        case BOLT:
+            if (exertedDeck->deckArr[exertedDeck->deckQuantity - 1].effect != DEAD) {
+                exertedDeck->deckValue -= exertedDeck->deckArr[exertedDeck->deckQuantity - 1].value;
+                exertedDeck->deckArr[exertedDeck->deckQuantity - 1] = back;
+            }
+            break;
+        // Swap opponent's deck with player's deck
+        case MIRROR:
+            CardDeck storedDeck = *exertedDeck;
+            *exertedDeck = *currentDeck;
+            *currentDeck = storedDeck;
+            break;
+        case BLAST:
+            break;
+    }
 }
 
 #endif // GAMEFUNCTIONS_H
