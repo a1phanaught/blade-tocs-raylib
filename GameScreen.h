@@ -47,7 +47,7 @@ void PlayGame(int screenWidth, int screenHeight) {
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         //UpdateDrawFrame();
-        IsMouseClicked = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
+        IsMouseClicked = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 
         if (GAME_FLAG == RESET_DECK) {
             playerDeck.deckQuantity = opponentDeck.deckQuantity = 1;
@@ -65,6 +65,33 @@ void PlayGame(int screenWidth, int screenHeight) {
             continue;
         }
 
+        if (GAME_FLAG == OPPONENT_MOVE) {
+            int CPUChosenIndex = GetRandomCardIndexCPU(opponentCards, opponentCardsQuantity, opponentDeck.deckValue, playerDeck.deckValue);
+            if (CPUChosenIndex < 0) {
+                GAME_FLAG = CPU_LOST;
+                continue;
+            }
+            ExertCardEffect(opponentCards[CPUChosenIndex], &opponentDeck, &playerDeck);
+            RemoveCardAtIndex(&opponentCards, &opponentCardsQuantity, CPUChosenIndex);
+            GAME_FLAG = PLAYER_MOVE;
+        }
+
+        opponentCards[0].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*opponentCardsQuantity)/2.0;
+        opponentCards[0].endPoint.x = opponentCards[0].startPoint.x + CARD_WIDTH;
+        opponentCards[0].endPoint.y = opponentYEndpoint;
+
+        for (int i = 1; i < opponentCardsQuantity; i++) {
+            opponentCards[i].startPoint.x = opponentCards[i-1].endPoint.x + 10.0f;
+            opponentCards[i].endPoint.x = opponentCards[i].startPoint.x + CARD_WIDTH;
+            opponentCards[i].endPoint.y = opponentYEndpoint;
+        }
+
+        if (playerDeck.deckValue == opponentDeck.deckValue) {
+            GAME_FLAG = RESET_DECK;
+            EndDrawing();
+            continue;
+        }
+        
         for (int i = 0; i < playerCardsQuantity; i++) {
             
             if (i == 0)
@@ -81,41 +108,9 @@ void PlayGame(int screenWidth, int screenHeight) {
                     ExertCardEffect(playerCards[i], &playerDeck, &opponentDeck);
                     RemoveCardAtIndex(&playerCards, &playerCardsQuantity, i);
                     GAME_FLAG = OPPONENT_MOVE;
-                    WaitTime(1);
                 }
             }
             else playerCards[i].startPoint.y = playerYCoordinate;
-        }
-
-        if (playerDeck.deckValue == opponentDeck.deckValue) {
-            GAME_FLAG = RESET_DECK;
-            EndDrawing();
-            continue;
-        }
-
-        if (GAME_FLAG == OPPONENT_MOVE) {    
-            int CPUChosenIndex = GetRandomCardIndexCPU(opponentCards, opponentCardsQuantity, opponentDeck.deckValue, playerDeck.deckValue);
-            if (CPUChosenIndex < 0) {
-                GAME_FLAG = CPU_LOST;
-                continue;
-            }
-            /*if (opponentCards[CPUChosenIndex].effect == NONE || opponentCards[CPUChosenIndex].effect == REVIVE) {
-                AddCardToDeck(&opponentDeck.deckArr, &opponentDeck.deckQuantity, opponentCards[CPUChosenIndex]);
-                opponentDeck.deckValue += opponentCards[CPUChosenIndex].value;
-            }*/
-            ExertCardEffect(opponentCards[CPUChosenIndex], &opponentDeck, &playerDeck);
-            RemoveCardAtIndex(&opponentCards, &opponentCardsQuantity, CPUChosenIndex);
-            GAME_FLAG = PLAYER_MOVE;
-        }
-
-        opponentCards[0].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*opponentCardsQuantity)/2.0;
-        opponentCards[0].endPoint.x = opponentCards[0].startPoint.x + CARD_WIDTH;
-        opponentCards[0].endPoint.y = opponentYEndpoint;
-
-        for (int i = 1; i < opponentCardsQuantity; i++) {
-            opponentCards[i].startPoint.x = opponentCards[i-1].endPoint.x + 10.0f;
-            opponentCards[i].endPoint.x = opponentCards[i].startPoint.x + CARD_WIDTH;
-            opponentCards[i].endPoint.y = opponentYEndpoint;
         }
 
         // Reminder that you're still within a loop, so don't worry too much about updating the position of cards...
@@ -135,11 +130,6 @@ void PlayGame(int screenWidth, int screenHeight) {
 
             for (int i = 0; i < playerCardsQuantity; i++)
                 DrawTexture(playerCards[i].txte, playerCards[i].startPoint.x, playerCards[i].startPoint.y, WHITE);
-
-            if (playerDeck.deckValue == opponentDeck.deckValue) {
-                GAME_FLAG = RESET_DECK;
-                continue;
-            }
 
             // End playerCards rendering section
             // Start determining opponentCards and render them
@@ -172,6 +162,7 @@ void PlayGame(int screenWidth, int screenHeight) {
             // End deck rendering section
         }
         EndDrawing();
+        if (GAME_FLAG == OPPONENT_MOVE) WaitTime(1);
     }
     // Free everything here
     
