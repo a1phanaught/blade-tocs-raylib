@@ -31,11 +31,11 @@ void PlayGame(int screenWidth, int screenHeight) {
     // Card array must be dynamic
     Card *playerCards = (Card*)calloc(playerCardsQuantity, sizeof(Card));
     PrepareCards(playerCards, playerCardsQuantity);
-    CardDeck playerDeck = {(Card*)malloc(20 * sizeof(Card)), 0, 0};
+    CardDeck playerDeck = {(Card*)malloc(20 * sizeof(Card)), 0, 0, dead};
 
     Card *opponentCards = (Card*)calloc(opponentCardsQuantity, sizeof(Card));
     PrepareCards(opponentCards, opponentCardsQuantity);
-    CardDeck opponentDeck = {(Card*)malloc(20 * sizeof(Card)), 0, 0};
+    CardDeck opponentDeck = {(Card*)malloc(20 * sizeof(Card)), 0, 0, dead};
 
     const float playerYCoordinate = screenHeight - (CARD_HEIGHT + 10.0), opponentYCoordinate = 10.0;
     const float playerYEndpoint = playerYCoordinate + CARD_HEIGHT, opponentYEndpoint = opponentYCoordinate + CARD_HEIGHT;
@@ -78,32 +78,6 @@ void PlayGame(int screenWidth, int screenHeight) {
             if (IsCursorHoverOverCard(&playerCards[i]) && GAME_FLAG == PLAYER_MOVE) {
                 playerCards[i].startPoint.y = playerYCoordinate - 20;
                 if (IsMouseClicked) {
-                    /*if (playerCards[i].effect == NONE || playerCards[i].effect == REVIVE) {
-                        AddCardToDeck(&playerDeck, &playerDeck.deckQuantity, playerCards[i]);
-                        PLAYER_VALUE += playerCards[i].value;
-                    }*/
-                    /*switch (playerCards[i].effect) {
-                        case NONE:
-                        case REVIVE:
-                            if (playerCards[i].effect == REVIVE && playerDeck.deckArr[playerDeck.deckQuantity - 1].effect == DEAD)
-                                // do something in order to revive dead card
-                                break;
-                            AddCardToDeck(&playerDeck.deckArr, &playerDeck.deckQuantity, playerCards[i]);
-                            playerDeck.deckValue += playerCards[i].value;
-                            break;
-                        case BOLT:
-                            if (opponentDeck.deckArr[opponentDeck.deckQuantity - 1].effect != DEAD) {
-                                opponentDeck.deckValue -= opponentDeck.deckArr[opponentDeck.deckQuantity - 1].value;
-                                opponentDeck.deckArr[opponentDeck.deckQuantity - 1] = back;
-                            }
-                            break;
-                        // Swap opponent's deck with player's deck
-                        case MIRROR:
-                            CardDeck storedDeck = opponentDeck;
-                            opponentDeck = playerDeck;
-                            playerDeck = storedDeck;
-                            break;
-                    }*/
                     ExertCardEffect(playerCards[i], &playerDeck, &opponentDeck);
                     RemoveCardAtIndex(&playerCards, &playerCardsQuantity, i);
                     GAME_FLAG = OPPONENT_MOVE;
@@ -125,10 +99,11 @@ void PlayGame(int screenWidth, int screenHeight) {
                 GAME_FLAG = CPU_LOST;
                 continue;
             }
-            if (opponentCards[CPUChosenIndex].effect == NONE || opponentCards[CPUChosenIndex].effect == REVIVE) {
+            /*if (opponentCards[CPUChosenIndex].effect == NONE || opponentCards[CPUChosenIndex].effect == REVIVE) {
                 AddCardToDeck(&opponentDeck.deckArr, &opponentDeck.deckQuantity, opponentCards[CPUChosenIndex]);
                 opponentDeck.deckValue += opponentCards[CPUChosenIndex].value;
-            }
+            }*/
+            ExertCardEffect(opponentCards[CPUChosenIndex], &opponentDeck, &playerDeck);
             RemoveCardAtIndex(&opponentCards, &opponentCardsQuantity, CPUChosenIndex);
             GAME_FLAG = PLAYER_MOVE;
         }
@@ -170,7 +145,10 @@ void PlayGame(int screenWidth, int screenHeight) {
             // Start determining opponentCards and render them
 
             for (int i = 0; i < opponentCardsQuantity; i++)
-                DrawTexture(back.txte, opponentCards[i].startPoint.x, opponentCards[i].startPoint.y, WHITE);
+                // I only use dead cards texture for opponent cards but that does not mean that the
+                // opponent cards are truly dead. I just want to hide what cards are in opponents hand
+                // from the players
+                DrawTexture(dead.txte, opponentCards[i].startPoint.x, opponentCards[i].startPoint.y, WHITE);
 
             // End opponentCards rendering section
             // Start Deck (played cards) rendering section
@@ -192,7 +170,6 @@ void PlayGame(int screenWidth, int screenHeight) {
             DrawText(opponentDeckValue, 150, opponentDeckYCoordinate + CARD_HEIGHT/2, 75, DARKGRAY);
 
             // End deck rendering section
-
         }
         EndDrawing();
     }

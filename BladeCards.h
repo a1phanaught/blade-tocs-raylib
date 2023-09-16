@@ -16,7 +16,7 @@ typedef struct Card {
 } Card;
 
 Card one, two, three, four, five, six, seven;
-Card blast, bolt, force, mirror, back;
+Card blast, bolt, force, mirror, dead;
 
 // Use this to scale Card size in the game.
 const float TEXTURE_SCALING = 0.60;
@@ -76,7 +76,7 @@ void CardsInit(void) {
 
     img = LoadImage("./img/back.png");
     ImageResize(&img, CARD_WIDTH, CARD_HEIGHT);
-    back = (Card){LoadTextureFromImage(img), 1, 0, DEAD};
+    dead = (Card){LoadTextureFromImage(img), 1, 0, DEAD};
 
     UnloadImage(img);
 }
