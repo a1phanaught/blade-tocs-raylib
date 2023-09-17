@@ -15,6 +15,11 @@ typedef struct Card {
     Vector2 startPoint, endPoint;
 } Card;
 
+typedef struct CardsAtHand {
+    Card *cardArr;
+    int quantity;
+} CardsAtHand;
+
 Card one, two, three, four, five, six, seven;
 Card blast, bolt, force, mirror, dead;
 

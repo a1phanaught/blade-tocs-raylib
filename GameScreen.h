@@ -25,16 +25,16 @@ void PlayGame(int screenWidth, int screenHeight) {
     CardsInit();
 
     int buf[10];
-    int playerCardsQuantity = 10, opponentCardsQuantity = 10;
     bool IsMouseClicked = false;
     
     // Card array must be dynamic
-    Card *playerCards = (Card*)calloc(playerCardsQuantity, sizeof(Card));
-    PrepareCards(playerCards, playerCardsQuantity);
+    CardsAtHand playerCards = {(Card*)calloc(10, sizeof(Card)), 10};
+    PrepareCards(playerCards.cardArr, playerCards.quantity);
     CardDeck playerDeck = {(Card*)malloc(20 * sizeof(Card)), 0, 0, dead};
 
-    Card *opponentCards = (Card*)calloc(opponentCardsQuantity, sizeof(Card));
-    PrepareCards(opponentCards, opponentCardsQuantity);
+    //Card *opponentCards = (Card*)calloc(opponentCardsQuantity, sizeof(Card));
+    CardsAtHand opponentCards = {(Card*)calloc(10, sizeof(Card)), 10};
+    PrepareCards(opponentCards.cardArr, opponentCards.quantity);
     CardDeck opponentDeck = {(Card*)malloc(20 * sizeof(Card)), 0, 0, dead};
 
     const float playerYCoordinate = screenHeight - (CARD_HEIGHT + 10.0), opponentYCoordinate = 10.0;
@@ -66,24 +66,24 @@ void PlayGame(int screenWidth, int screenHeight) {
         }
 
         if (GAME_FLAG == OPPONENT_MOVE) {
-            int CPUChosenIndex = GetRandomCardIndexCPU(opponentCards, opponentCardsQuantity, opponentDeck.deckValue, playerDeck.deckValue);
+            int CPUChosenIndex = GetRandomCardIndexCPU(opponentCards.cardArr, opponentCards.quantity, opponentDeck.deckValue, playerDeck.deckValue);
             if (CPUChosenIndex < 0) {
                 GAME_FLAG = CPU_LOST;
                 continue;
             }
-            ExertCardEffect(opponentCards[CPUChosenIndex], &opponentDeck, &playerDeck);
-            RemoveCardAtIndex(&opponentCards, &opponentCardsQuantity, CPUChosenIndex);
+            ExertCardEffect(opponentCards.cardArr[CPUChosenIndex], &opponentDeck, &playerDeck);
+            RemoveCardAtIndex(&opponentCards.cardArr, &opponentCards.quantity, CPUChosenIndex);
             GAME_FLAG = PLAYER_MOVE;
         }
 
-        opponentCards[0].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*opponentCardsQuantity)/2.0;
-        opponentCards[0].endPoint.x = opponentCards[0].startPoint.x + CARD_WIDTH;
-        opponentCards[0].endPoint.y = opponentYEndpoint;
+        opponentCards.cardArr[0].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*opponentCards.quantity)/2.0;
+        opponentCards.cardArr[0].endPoint.x = opponentCards.cardArr[0].startPoint.x + CARD_WIDTH;
+        opponentCards.cardArr[0].endPoint.y = opponentYEndpoint;
 
-        for (int i = 1; i < opponentCardsQuantity; i++) {
-            opponentCards[i].startPoint.x = opponentCards[i-1].endPoint.x + 10.0f;
-            opponentCards[i].endPoint.x = opponentCards[i].startPoint.x + CARD_WIDTH;
-            opponentCards[i].endPoint.y = opponentYEndpoint;
+        for (int i = 1; i < opponentCards.quantity; i++) {
+            opponentCards.cardArr[i].startPoint.x = opponentCards.cardArr[i-1].endPoint.x + 10.0f;
+            opponentCards.cardArr[i].endPoint.x = opponentCards.cardArr[i].startPoint.x + CARD_WIDTH;
+            opponentCards.cardArr[i].endPoint.y = opponentYEndpoint;
         }
 
         if (playerDeck.deckValue == opponentDeck.deckValue) {
@@ -92,25 +92,25 @@ void PlayGame(int screenWidth, int screenHeight) {
             continue;
         }
         
-        for (int i = 0; i < playerCardsQuantity; i++) {
+        for (int i = 0; i < playerCards.quantity; i++) {
             
             if (i == 0)
-                playerCards[i].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*playerCardsQuantity)/2.0;
+                playerCards.cardArr[i].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*playerCards.quantity)/2.0;
             else
-                playerCards[i].startPoint.x = playerCards[i-1].endPoint.x + 10.0f;
+                playerCards.cardArr[i].startPoint.x = playerCards.cardArr[i-1].endPoint.x + 10.0f;
 
-            playerCards[i].endPoint.x = playerCards[i].startPoint.x + CARD_WIDTH;
-            playerCards[i].endPoint.y = playerYEndpoint;
+            playerCards.cardArr[i].endPoint.x = playerCards.cardArr[i].startPoint.x + CARD_WIDTH;
+            playerCards.cardArr[i].endPoint.y = playerYEndpoint;
 
-            if (IsCursorHoverOverCard(&playerCards[i]) && GAME_FLAG == PLAYER_MOVE) {
-                playerCards[i].startPoint.y = playerYCoordinate - 20;
+            if (IsCursorHoverOverCard(&playerCards.cardArr[i]) && GAME_FLAG == PLAYER_MOVE) {
+                playerCards.cardArr[i].startPoint.y = playerYCoordinate - 20;
                 if (IsMouseClicked) {
-                    ExertCardEffect(playerCards[i], &playerDeck, &opponentDeck);
-                    RemoveCardAtIndex(&playerCards, &playerCardsQuantity, i);
+                    ExertCardEffect(playerCards.cardArr[i], &playerDeck, &opponentDeck);
+                    RemoveCardAtIndex(&playerCards.cardArr, &playerCards.quantity, i);
                     GAME_FLAG = OPPONENT_MOVE;
                 }
             }
-            else playerCards[i].startPoint.y = playerYCoordinate;
+            else playerCards.cardArr[i].startPoint.y = playerYCoordinate;
         }
 
         // Reminder that you're still within a loop, so don't worry too much about updating the position of cards...
@@ -128,17 +128,17 @@ void PlayGame(int screenWidth, int screenHeight) {
 
             // Alas determine position of playerCards and render them...
 
-            for (int i = 0; i < playerCardsQuantity; i++)
-                DrawTexture(playerCards[i].txte, playerCards[i].startPoint.x, playerCards[i].startPoint.y, WHITE);
+            for (int i = 0; i < playerCards.quantity; i++)
+                DrawTexture(playerCards.cardArr[i].txte, playerCards.cardArr[i].startPoint.x, playerCards.cardArr[i].startPoint.y, WHITE);
 
             // End playerCards rendering section
             // Start determining opponentCards and render them
 
-            for (int i = 0; i < opponentCardsQuantity; i++)
+            for (int i = 0; i < opponentCards.quantity; i++)
                 // I only use dead cards texture for opponent cards but that does not mean that the
                 // opponent cards are truly dead. I just want to hide what cards are in opponents hand
                 // from the players
-                DrawTexture(dead.txte, opponentCards[i].startPoint.x, opponentCards[i].startPoint.y, WHITE);
+                DrawTexture(dead.txte, opponentCards.cardArr[i].startPoint.x, opponentCards.cardArr[i].startPoint.y, WHITE);
 
             // End opponentCards rendering section
             // Start Deck (played cards) rendering section
@@ -166,9 +166,9 @@ void PlayGame(int screenWidth, int screenHeight) {
     }
     // Free everything here
     
-    free(playerCards);
+    free(playerCards.cardArr);
     free(playerDeck.deckArr);
-    free(opponentCards);
+    free(opponentCards.cardArr);
     free(opponentDeck.deckArr);
 }
 
