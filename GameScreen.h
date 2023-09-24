@@ -26,6 +26,7 @@ void PlayGame(int screenWidth, int screenHeight) {
 
     int buf[10];
     bool IsMouseClicked = false;
+    const Texture2D boardTxte = MakeBoard(screenWidth, screenHeight);
     
     // Card array must be dynamic
     CardsAtHand playerCards = {(Card*)calloc(10, sizeof(Card)), 10};
@@ -126,6 +127,8 @@ void PlayGame(int screenWidth, int screenHeight) {
                     continue;
             }*/
 
+            DrawTexture(boardTxte, 0, 0, WHITE);
+
             // Alas determine position of playerCards and render them...
 
             for (int i = 0; i < playerCards.quantity; i++)
@@ -154,11 +157,10 @@ void PlayGame(int screenWidth, int screenHeight) {
             itoa(playerDeck.deckValue, playerDeckValue, 10);
             itoa(opponentDeck.deckValue, opponentDeckValue, 10);
 
-            DrawText("Score", 150, playerDeckYCoordinate, 75, DARKGRAY);
-            DrawText(playerDeckValue, 150, playerDeckYCoordinate + CARD_HEIGHT/2, 75, DARKGRAY);
-            DrawText("Score", 150, opponentDeckYCoordinate, 75, DARKGRAY);
-            DrawText(opponentDeckValue, 150, opponentDeckYCoordinate + CARD_HEIGHT/2, 75, DARKGRAY);
-
+            DrawText("Score", 150, playerDeckYCoordinate, 75, WHITE);
+            DrawText(playerDeckValue, 150, playerDeckYCoordinate + CARD_HEIGHT/2, 75, WHITE);
+            DrawText("Score", 150, opponentDeckYCoordinate, 75, WHITE);
+            DrawText(opponentDeckValue, 150, opponentDeckYCoordinate + CARD_HEIGHT/2, 75, WHITE);
             // End deck rendering section
         }
         EndDrawing();

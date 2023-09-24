@@ -105,4 +105,12 @@ int GetRandomCardIndexCPU(Card *cardArr, int sz, int opponentVal, int playerVal)
     return determinant;
 }
 
+Texture2D MakeBoard(int width, int height) {
+    Image img = LoadImage("./img/board.png");
+    ImageResize(&img, width, height);
+    Texture2D boardTxte = LoadTextureFromImage(img);
+    UnloadImage(img);
+    return boardTxte;
+}
+
 #endif // GAMEFUNCTIONS_H
