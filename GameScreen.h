@@ -10,8 +10,8 @@
 // Local Variables Definition (local to this module)
 //----------------------------------------------------------------------------------
 
-enum GAME_FLAGS {PLAYER_MOVE, OPPONENT_MOVE, RESET_DECK, PLAYER_LOST, CPU_LOST} GAME_FLAG;
-int PLAYER_VALUE = 0, OPPONENT_VALUE = 0;
+enum GAME_FLAGS {PLAYER_MOVE, CPU_MOVE, RESET_DECK, PLAYER_LOST, CPU_LOST} GAME_FLAG;
+int PLAYER_VALUE = 0, CPU_VALUE = 0;
 
 //----------------------------------------------------------------------------------
 // Local Functions Declaration
@@ -34,14 +34,14 @@ void PlayGame(int screenWidth, int screenHeight) {
     CardDeck playerDeck = {(Card*)malloc(20 * sizeof(Card)), 0, 0, dead};
 
     //Card *opponentCards = (Card*)calloc(opponentCardsQuantity, sizeof(Card));
-    CardsAtHand opponentCards = {(Card*)calloc(10, sizeof(Card)), 10};
-    PrepareCards(opponentCards.cardArr, opponentCards.quantity);
-    CardDeck opponentDeck = {(Card*)malloc(20 * sizeof(Card)), 0, 0, dead};
+    CardsAtHand CPUCards = {(Card*)calloc(10, sizeof(Card)), 10};
+    PrepareCards(CPUCards.cardArr, CPUCards.quantity);
+    CardDeck CPUDeck = {(Card*)malloc(20 * sizeof(Card)), 0, 0, dead};
 
-    const float playerYCoordinate = screenHeight - (CARD_HEIGHT + 10.0), opponentYCoordinate = 10.0;
-    const float playerYEndpoint = playerYCoordinate + CARD_HEIGHT, opponentYEndpoint = opponentYCoordinate + CARD_HEIGHT;
+    const float playerYCoordinate = screenHeight - (CARD_HEIGHT + 10.0), CPUYCoordinate = 10.0;
+    const float playerYEndpoint = playerYCoordinate + CARD_HEIGHT, CPUYEndpoint = CPUYCoordinate + CARD_HEIGHT;
     const float playerDeckYCoordinate = playerYCoordinate - CARD_HEIGHT - 50.0,
-    opponentDeckYCoordinate = opponentYCoordinate + CARD_HEIGHT + 50.0;
+    CPUDeckYCoordinate = CPUYCoordinate + CARD_HEIGHT + 50.0;
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -51,43 +51,43 @@ void PlayGame(int screenWidth, int screenHeight) {
         IsMouseClicked = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 
         if (GAME_FLAG == RESET_DECK) {
-            playerDeck.deckQuantity = opponentDeck.deckQuantity = 1;
+            playerDeck.deckQuantity = CPUDeck.deckQuantity = 1;
             playerDeck.deckArr[0] = GetRandomCard(buf);
-            opponentDeck.deckArr[0] = GetRandomCard(buf);
+            CPUDeck.deckArr[0] = GetRandomCard(buf);
             playerDeck.deckValue = playerDeck.deckArr[0].value;
-            opponentDeck.deckValue = opponentDeck.deckArr[0].value;
-            GAME_FLAG = playerDeck.deckValue > opponentDeck.deckValue ? OPPONENT_MOVE : PLAYER_MOVE;
+            CPUDeck.deckValue = CPUDeck.deckArr[0].value;
+            GAME_FLAG = playerDeck.deckValue > CPUDeck.deckValue ? CPU_MOVE : PLAYER_MOVE;
 
         }
 
-        if (playerDeck.deckValue == opponentDeck.deckValue) {
+        if (playerDeck.deckValue == CPUDeck.deckValue) {
             GAME_FLAG = RESET_DECK;
             EndDrawing();
             continue;
         }
 
-        if (GAME_FLAG == OPPONENT_MOVE) {
-            int CPUChosenIndex = GetRandomCardIndexCPU(opponentCards.cardArr, opponentCards.quantity, opponentDeck.deckValue, playerDeck.deckValue);
+        if (GAME_FLAG == CPU_MOVE) {
+            int CPUChosenIndex = GetRandomCardIndexCPU(CPUCards.cardArr, CPUCards.quantity, CPUDeck.deckValue, playerDeck.deckValue);
             if (CPUChosenIndex < 0) {
                 GAME_FLAG = CPU_LOST;
                 continue;
             }
-            ExertCardEffect(opponentCards.cardArr[CPUChosenIndex], &opponentDeck, &playerDeck);
-            RemoveCardAtIndex(&opponentCards.cardArr, &opponentCards.quantity, CPUChosenIndex);
+            ExertCardEffect(CPUCards.cardArr[CPUChosenIndex], &CPUDeck, &playerDeck);
+            RemoveCardAtIndex(&CPUCards.cardArr, &CPUCards.quantity, CPUChosenIndex);
             GAME_FLAG = PLAYER_MOVE;
         }
 
-        opponentCards.cardArr[0].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*opponentCards.quantity)/2.0;
-        opponentCards.cardArr[0].endPoint.x = opponentCards.cardArr[0].startPoint.x + CARD_WIDTH;
-        opponentCards.cardArr[0].endPoint.y = opponentYEndpoint;
+        CPUCards.cardArr[0].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*CPUCards.quantity)/2.0;
+        CPUCards.cardArr[0].endPoint.x = CPUCards.cardArr[0].startPoint.x + CARD_WIDTH;
+        CPUCards.cardArr[0].endPoint.y = CPUYEndpoint;
 
-        for (int i = 1; i < opponentCards.quantity; i++) {
-            opponentCards.cardArr[i].startPoint.x = opponentCards.cardArr[i-1].endPoint.x + 10.0f;
-            opponentCards.cardArr[i].endPoint.x = opponentCards.cardArr[i].startPoint.x + CARD_WIDTH;
-            opponentCards.cardArr[i].endPoint.y = opponentYEndpoint;
+        for (int i = 1; i < CPUCards.quantity; i++) {
+            CPUCards.cardArr[i].startPoint.x = CPUCards.cardArr[i-1].endPoint.x + 10.0f;
+            CPUCards.cardArr[i].endPoint.x = CPUCards.cardArr[i].startPoint.x + CARD_WIDTH;
+            CPUCards.cardArr[i].endPoint.y = CPUYEndpoint;
         }
 
-        if (playerDeck.deckValue == opponentDeck.deckValue) {
+        if (playerDeck.deckValue == CPUDeck.deckValue) {
             GAME_FLAG = RESET_DECK;
             EndDrawing();
             continue;
@@ -106,9 +106,9 @@ void PlayGame(int screenWidth, int screenHeight) {
             if (IsCursorHoverOverCard(&playerCards.cardArr[i]) && GAME_FLAG == PLAYER_MOVE) {
                 playerCards.cardArr[i].startPoint.y = playerYCoordinate - 20;
                 if (IsMouseClicked) {
-                    ExertCardEffect(playerCards.cardArr[i], &playerDeck, &opponentDeck);
+                    ExertCardEffect(playerCards.cardArr[i], &playerDeck, &CPUDeck);
                     RemoveCardAtIndex(&playerCards.cardArr, &playerCards.quantity, i);
-                    GAME_FLAG = OPPONENT_MOVE;
+                    GAME_FLAG = CPU_MOVE;
                 }
             }
             else playerCards.cardArr[i].startPoint.y = playerYCoordinate;
@@ -135,43 +135,43 @@ void PlayGame(int screenWidth, int screenHeight) {
                 DrawTexture(playerCards.cardArr[i].txte, playerCards.cardArr[i].startPoint.x, playerCards.cardArr[i].startPoint.y, WHITE);
 
             // End playerCards rendering section
-            // Start determining opponentCards and render them
+            // Start determining CPUCards and render them
 
-            for (int i = 0; i < opponentCards.quantity; i++)
-                // I only use dead cards texture for opponent cards but that does not mean that the
-                // opponent cards are truly dead. I just want to hide what cards are in opponents hand
+            for (int i = 0; i < CPUCards.quantity; i++)
+                // I only use dead cards texture for CPU cards but that does not mean that the
+                // CPU cards are truly dead. I just want to hide what cards are in CPUs hand
                 // from the players
-                DrawTexture(dead.txte, opponentCards.cardArr[i].startPoint.x, opponentCards.cardArr[i].startPoint.y, WHITE);
+                DrawTexture(dead.txte, CPUCards.cardArr[i].startPoint.x, CPUCards.cardArr[i].startPoint.y, WHITE);
 
-            // End opponentCards rendering section
+            // End CPUCards rendering section
             // Start Deck (played cards) rendering section
 
             for (int i = 0, playerX = screenWidth - 200; i < playerDeck.deckQuantity; i++)
                 DrawTexture(playerDeck.deckArr[i].txte, playerX -= CARD_WIDTH/2, playerDeckYCoordinate, WHITE);
 
-            for (int i = 0, opponentX = screenWidth - 200; i < opponentDeck.deckQuantity; i++)
-                DrawTexture(opponentDeck.deckArr[i].txte, opponentX -= CARD_WIDTH/2, opponentDeckYCoordinate, WHITE);
+            for (int i = 0, CPUX = screenWidth - 200; i < CPUDeck.deckQuantity; i++)
+                DrawTexture(CPUDeck.deckArr[i].txte, CPUX -= CARD_WIDTH/2, CPUDeckYCoordinate, WHITE);
 
-            char playerDeckValue[3], opponentDeckValue[3];
+            char playerDeckValue[3], CPUDeckValue[3];
             
             itoa(playerDeck.deckValue, playerDeckValue, 10);
-            itoa(opponentDeck.deckValue, opponentDeckValue, 10);
+            itoa(CPUDeck.deckValue, CPUDeckValue, 10);
 
             DrawText("Score", 150, playerDeckYCoordinate, 75, WHITE);
             DrawText(playerDeckValue, 150, playerDeckYCoordinate + CARD_HEIGHT/2, 75, WHITE);
-            DrawText("Score", 150, opponentDeckYCoordinate, 75, WHITE);
-            DrawText(opponentDeckValue, 150, opponentDeckYCoordinate + CARD_HEIGHT/2, 75, WHITE);
+            DrawText("Score", 150, CPUDeckYCoordinate, 75, WHITE);
+            DrawText(CPUDeckValue, 150, CPUDeckYCoordinate + CARD_HEIGHT/2, 75, WHITE);
             // End deck rendering section
         }
         EndDrawing();
-        if (GAME_FLAG == OPPONENT_MOVE) WaitTime(1);
+        if (GAME_FLAG == CPU_MOVE) WaitTime(1);
     }
     // Free everything here
     
     free(playerCards.cardArr);
     free(playerDeck.deckArr);
-    free(opponentCards.cardArr);
-    free(opponentDeck.deckArr);
+    free(CPUCards.cardArr);
+    free(CPUDeck.deckArr);
 }
 
 void PrepareCards(Card *cardArr, int sz) {

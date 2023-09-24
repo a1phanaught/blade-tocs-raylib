@@ -10,7 +10,7 @@ typedef struct CardDeck {
     Card deadCard;
 } CardDeck;
 
-void ExertCardEffect(Card usedCard, CardDeck *currentDeck, CardDeck *exertedDeck) {
+void ExertCardEffect(Card usedCard, CardDeck *currentDeck, CardDeck *opponentDeck) {
     switch (usedCard.effect) {
         case NONE:
         case REVIVE:
@@ -23,21 +23,23 @@ void ExertCardEffect(Card usedCard, CardDeck *currentDeck, CardDeck *exertedDeck
             currentDeck->deckValue += usedCard.value;
             return;
         case BOLT:
-            if (exertedDeck->deckArr[exertedDeck->deckQuantity - 1].effect != DEAD) {
-                exertedDeck->deadCard = exertedDeck->deckArr[exertedDeck->deckQuantity - 1];
-                exertedDeck->deckValue -= exertedDeck->deckArr[exertedDeck->deckQuantity - 1].value;
-                exertedDeck->deckArr[exertedDeck->deckQuantity - 1] = dead;
+            if (opponentDeck->deckArr[opponentDeck->deckQuantity - 1].effect != DEAD) {
+                opponentDeck->deadCard = opponentDeck->deckArr[opponentDeck->deckQuantity - 1];
+                opponentDeck->deckValue -= opponentDeck->deckArr[opponentDeck->deckQuantity - 1].value;
+                opponentDeck->deckArr[opponentDeck->deckQuantity - 1] = dead;
             }
             return;
         // Swap opponent's deck with player's deck
         case MIRROR:
-            CardDeck storedDeck = *exertedDeck;
-            *exertedDeck = *currentDeck;
+            CardDeck storedDeck = *opponentDeck;
+            *opponentDeck = *currentDeck;
             *currentDeck = storedDeck;
             return;
         case BLAST:
+            // This one is a special case, should be handled natively in GameScreen.h
             return;
         case FORCE:
+            currentDeck->deckValue *= 2;
             return;
         case DEAD:
             // putting this here just to supress the warning message

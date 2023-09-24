@@ -22,6 +22,7 @@
 //----------------------------------------------------------------------------------
 
 const int SCREEN_WIDTH = 1600, SCREEN_HEIGHT = 900;
+// bool GAME_START = false; // bring in the main game screen if the game has been started
 
 //----------------------------------------------------------------------------------
 // Local Functions Declaration
@@ -34,6 +35,7 @@ int main()
 {
     // Initialization
     //--------------------------------------------------------------------------------------
+    Image icon = LoadImage("./img/blade.ico");
     //--------------------------------------------------------------------------------------
 
 #if defined(PLATFORM_WEB)
@@ -42,6 +44,7 @@ int main()
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Blade");
+    SetWindowIcon(icon);
     PlayGame(SCREEN_WIDTH, SCREEN_HEIGHT);
     
 #endif
@@ -49,6 +52,7 @@ int main()
     // De-Initialization
     //--------------------------------------------------------------------------------------
     CloseWindow();                  // Close window and OpenGL context
+    UnloadImage(icon);
     //--------------------------------------------------------------------------------------
 
     return 0;
