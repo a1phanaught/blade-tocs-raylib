@@ -33,7 +33,6 @@ void PlayGame(int screenWidth, int screenHeight) {
     PrepareCards(playerCards.cardArr, playerCards.quantity);
     CardDeck playerDeck = {(Card*)malloc(20 * sizeof(Card)), 0, 0, dead};
 
-    //Card *opponentCards = (Card*)calloc(opponentCardsQuantity, sizeof(Card));
     CardsAtHand CPUCards = {(Card*)calloc(10, sizeof(Card)), 10};
     PrepareCards(CPUCards.cardArr, CPUCards.quantity);
     CardDeck CPUDeck = {(Card*)malloc(20 * sizeof(Card)), 0, 0, dead};
@@ -47,7 +46,7 @@ void PlayGame(int screenWidth, int screenHeight) {
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
-        //UpdateDrawFrame();
+        // Is mouse clicked on this frame?
         IsMouseClicked = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 
         if (GAME_FLAG == RESET_DECK) {
@@ -61,6 +60,7 @@ void PlayGame(int screenWidth, int screenHeight) {
         }
 
         if (playerDeck.deckValue == CPUDeck.deckValue) {
+            // Skip to the next frame to cancel mouse click, ignore updating cards' positions
             GAME_FLAG = RESET_DECK;
             EndDrawing();
             continue;
@@ -72,9 +72,12 @@ void PlayGame(int screenWidth, int screenHeight) {
                 GAME_FLAG = CPU_LOST;
                 continue;
             }
+            Card tempCardStorer = playerCards.cardArr[CPUChosenIndex];
             ExertCardEffect(CPUCards.cardArr[CPUChosenIndex], &CPUDeck, &playerDeck, &playerCards);
             RemoveCardAtIndex(&CPUCards.cardArr, &CPUCards.quantity, CPUChosenIndex);
-            if(CPUDeck.deckValue > playerDeck.deckValue)
+            // Do not compare card deck value and use below method instead as comparing values
+            // could cause a bug on player's turn
+            if(tempCardStorer.effect != BLAST)
                 GAME_FLAG = PLAYER_MOVE;
         }
 
@@ -107,9 +110,17 @@ void PlayGame(int screenWidth, int screenHeight) {
             if (IsCursorHoverOverCard(&playerCards.cardArr[i]) && GAME_FLAG == PLAYER_MOVE) {
                 playerCards.cardArr[i].startPoint.y = playerYCoordinate - 20;
                 if (IsMouseClicked) {
+                    Card tempCardStorer = playerCards.cardArr[i];
                     ExertCardEffect(playerCards.cardArr[i], &playerDeck, &CPUDeck, &CPUCards);
                     RemoveCardAtIndex(&playerCards.cardArr, &playerCards.quantity, i);
-                    if (playerDeck.deckValue > CPUDeck.deckValue)
+                    // If player deck value is less than the opponent even after playing a card
+                    if (playerDeck.deckValue < CPUDeck.deckValue) {
+                        GAME_FLAG = PLAYER_LOST;
+                        continue;
+                    }
+                    // Do not compare card deck value and use below method instead as comparing values
+                    // could cause a bug on player's turn
+                    if (tempCardStorer.effect != BLAST)
                         GAME_FLAG = CPU_MOVE;
                 }
             }
@@ -141,7 +152,7 @@ void PlayGame(int screenWidth, int screenHeight) {
 
             for (int i = 0; i < CPUCards.quantity; i++)
                 // I only use dead cards texture for CPU cards but that does not mean that the
-                // CPU cards are truly dead. I just want to hide what cards are in CPUs hand
+                // CPU cards are truly dead. I just want to hide what cards are in CPUs' hand
                 // from the players
                 DrawTexture(dead.txte, CPUCards.cardArr[i].startPoint.x, CPUCards.cardArr[i].startPoint.y, WHITE);
 
