@@ -46,7 +46,6 @@ int main()
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Blade");
     SetWindowIcon(icon);
     PlayGame(SCREEN_WIDTH, SCREEN_HEIGHT);
-    
 #endif
 
     // De-Initialization

@@ -10,7 +10,7 @@ typedef struct CardDeck {
     Card deadCard;
 } CardDeck;
 
-void ExertCardEffect(Card usedCard, CardDeck *currentDeck, CardDeck *opponentDeck) {
+void ExertCardEffect(Card usedCard, CardDeck *currentDeck, CardDeck *opponentDeck, CardsAtHand *opponentCard) {
     switch (usedCard.effect) {
         case NONE:
         case REVIVE:
@@ -35,8 +35,9 @@ void ExertCardEffect(Card usedCard, CardDeck *currentDeck, CardDeck *opponentDec
             *opponentDeck = *currentDeck;
             *currentDeck = storedDeck;
             return;
+        // Remove a card from the opponent's hand
         case BLAST:
-            // This one is a special case, should be handled natively in GameScreen.h
+            RemoveCardAtIndex(&opponentCard->cardArr, &opponentCard->quantity, GetRandomValue(0, opponentCard->quantity));
             return;
         case FORCE:
             currentDeck->deckValue *= 2;

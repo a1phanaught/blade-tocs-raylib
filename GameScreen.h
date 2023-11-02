@@ -72,9 +72,10 @@ void PlayGame(int screenWidth, int screenHeight) {
                 GAME_FLAG = CPU_LOST;
                 continue;
             }
-            ExertCardEffect(CPUCards.cardArr[CPUChosenIndex], &CPUDeck, &playerDeck);
+            ExertCardEffect(CPUCards.cardArr[CPUChosenIndex], &CPUDeck, &playerDeck, &playerCards);
             RemoveCardAtIndex(&CPUCards.cardArr, &CPUCards.quantity, CPUChosenIndex);
-            GAME_FLAG = PLAYER_MOVE;
+            if(CPUDeck.deckValue > playerDeck.deckValue)
+                GAME_FLAG = PLAYER_MOVE;
         }
 
         CPUCards.cardArr[0].startPoint.x = (screenWidth-(CARD_WIDTH+10.0)*CPUCards.quantity)/2.0;
@@ -106,9 +107,10 @@ void PlayGame(int screenWidth, int screenHeight) {
             if (IsCursorHoverOverCard(&playerCards.cardArr[i]) && GAME_FLAG == PLAYER_MOVE) {
                 playerCards.cardArr[i].startPoint.y = playerYCoordinate - 20;
                 if (IsMouseClicked) {
-                    ExertCardEffect(playerCards.cardArr[i], &playerDeck, &CPUDeck);
+                    ExertCardEffect(playerCards.cardArr[i], &playerDeck, &CPUDeck, &CPUCards);
                     RemoveCardAtIndex(&playerCards.cardArr, &playerCards.quantity, i);
-                    GAME_FLAG = CPU_MOVE;
+                    if (playerDeck.deckValue > CPUDeck.deckValue)
+                        GAME_FLAG = CPU_MOVE;
                 }
             }
             else playerCards.cardArr[i].startPoint.y = playerYCoordinate;
