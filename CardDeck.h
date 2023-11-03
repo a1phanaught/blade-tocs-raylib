@@ -17,6 +17,7 @@ void ExertCardEffect(Card usedCard, CardDeck *currentDeck, CardDeck *opponentDec
             if (usedCard.effect == REVIVE && currentDeck->deckArr[currentDeck->deckQuantity - 1].effect == DEAD) {
                 // Revive dead card (if exists)
                 currentDeck->deckArr[currentDeck->deckQuantity - 1] = currentDeck->deadCard;
+                currentDeck->deckValue += currentDeck->deadCard.value;
                 return;
             }
             AddCardToDeck(&(currentDeck->deckArr), &(currentDeck->deckQuantity), usedCard);

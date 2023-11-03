@@ -3,6 +3,7 @@
 
 #include "BladeCards.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 // Get random card, but ensure that no specific type of card appears
 // more than twice on player's hand.
@@ -96,7 +97,7 @@ int GetRandomCardIndexCPU(Card *cardArr, int sz, int opponentVal, int playerVal)
     int determinant = GetRandomValue(0,sz-1);
     int limit = determinant;
 
-    while (cardArr[determinant].value + opponentVal <= playerVal) {
+    while ((cardArr[determinant].effect == NONE) && cardArr[determinant].value + opponentVal <= playerVal) {
         determinant++;
         if (determinant > sz-1) determinant = 0;
         if (limit == determinant) return -1;
@@ -111,6 +112,30 @@ Texture2D MakeBoard(int width, int height) {
     Texture2D boardTxte = LoadTextureFromImage(img);
     UnloadImage(img);
     return boardTxte;
+}
+
+char *WhatWasCPUDoing(Card usedCard) {
+    switch (usedCard.effect) {
+        case NONE:
+            int usedCardValue = usedCard.value;
+            char *tempStr = (char*)calloc(20, sizeof(char));
+            sprintf(tempStr, "CPU used a card = %d", usedCardValue);
+            return tempStr;
+        case REVIVE:
+            return "CPU revived a card!";
+        case BLAST:
+            return "CPU removed one of your playing cards!";
+        case BOLT:
+            return "CPU destroyed one of your played cards!";
+        case FORCE:
+            return "CPU doubled the total value of its cards!";
+        case MIRROR:
+            return "CPU swapped its played cards with yours!";
+        case DEAD:
+            // Suppress warning message
+            return "";
+    }
+    return "";
 }
 
 #endif // GAMEFUNCTIONS_H

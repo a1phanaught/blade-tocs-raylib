@@ -27,6 +27,7 @@ void PlayGame(int screenWidth, int screenHeight) {
     int buf[10];
     bool IsMouseClicked = false;
     const Texture2D boardTxte = MakeBoard(screenWidth, screenHeight);
+    Card CPUCardStorer;
     
     // Card array must be dynamic
     CardsAtHand playerCards = {(Card*)calloc(10, sizeof(Card)), 10};
@@ -72,12 +73,12 @@ void PlayGame(int screenWidth, int screenHeight) {
                 GAME_FLAG = CPU_LOST;
                 continue;
             }
-            Card tempCardStorer = playerCards.cardArr[CPUChosenIndex];
+            CPUCardStorer = playerCards.cardArr[CPUChosenIndex];
             ExertCardEffect(CPUCards.cardArr[CPUChosenIndex], &CPUDeck, &playerDeck, &playerCards);
             RemoveCardAtIndex(&CPUCards.cardArr, &CPUCards.quantity, CPUChosenIndex);
             // Do not compare card deck value and use below method instead as comparing values
             // could cause a bug on player's turn
-            if(tempCardStorer.effect != BLAST)
+            if(CPUCardStorer.effect != BLAST)
                 GAME_FLAG = PLAYER_MOVE;
         }
 
@@ -114,7 +115,8 @@ void PlayGame(int screenWidth, int screenHeight) {
                     ExertCardEffect(playerCards.cardArr[i], &playerDeck, &CPUDeck, &CPUCards);
                     RemoveCardAtIndex(&playerCards.cardArr, &playerCards.quantity, i);
                     // If player deck value is less than the opponent even after playing a card
-                    if (playerDeck.deckValue < CPUDeck.deckValue) {
+                    // AND if the player did not use a BLAST card...
+                    if (playerDeck.deckValue < CPUDeck.deckValue && tempCardStorer.effect != BLAST) {
                         GAME_FLAG = PLAYER_LOST;
                         continue;
                     }
@@ -174,6 +176,7 @@ void PlayGame(int screenWidth, int screenHeight) {
             DrawText(playerDeckValue, 150, playerDeckYCoordinate + CARD_HEIGHT/2, 75, WHITE);
             DrawText("Score", 150, CPUDeckYCoordinate, 75, WHITE);
             DrawText(CPUDeckValue, 150, CPUDeckYCoordinate + CARD_HEIGHT/2, 75, WHITE);
+            DrawText(WhatWasCPUDoing(CPUCardStorer), 350, 250, 15, WHITE);
             // End deck rendering section
         }
         EndDrawing();
