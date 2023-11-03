@@ -91,27 +91,20 @@ void AddCardToDeck(Card **array, int *size, Card value) {
 }
 
 // Make sure to pick a card that has a higher accumulated value than playerVal
-int GetRandomCardIndexCPU(Card *cardArr, int sz, int opponentVal, int playerVal) {
+int GetRandomCardIndexCPU(Card *cardArr, int sz, int opponentVal, int playerVal, bool revivableCardExists) {
     //if (*(cardArr + sz - 1) == Card.back);
 
     int determinant = GetRandomValue(0,sz-1);
     int limit = determinant;
 
-    while ((cardArr[determinant].effect == NONE) && cardArr[determinant].value + opponentVal <= playerVal) {
+    while ((cardArr[determinant].effect == NONE || cardArr[determinant].effect == REVIVE) && cardArr[determinant].value + opponentVal <= playerVal) {
+        if (cardArr[determinant].effect == REVIVE && revivableCardExists) return determinant;
         determinant++;
         if (determinant > sz-1) determinant = 0;
         if (limit == determinant) return -1;
     }
 
     return determinant;
-}
-
-Texture2D MakeBoard(int width, int height) {
-    Image img = LoadImage("./img/board.png");
-    ImageResize(&img, width, height);
-    Texture2D boardTxte = LoadTextureFromImage(img);
-    UnloadImage(img);
-    return boardTxte;
 }
 
 char *WhatWasCPUDoing(Card usedCard) {
@@ -136,6 +129,14 @@ char *WhatWasCPUDoing(Card usedCard) {
             return "";
     }
     return "";
+}
+
+Texture2D MakeBoard(int width, int height) {
+    Image img = LoadImage("./img/board.png");
+    ImageResize(&img, width, height);
+    Texture2D boardTxte = LoadTextureFromImage(img);
+    UnloadImage(img);
+    return boardTxte;
 }
 
 #endif // GAMEFUNCTIONS_H

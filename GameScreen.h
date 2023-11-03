@@ -68,12 +68,13 @@ void PlayGame(int screenWidth, int screenHeight) {
         }
 
         if (GAME_FLAG == CPU_MOVE) {
-            int CPUChosenIndex = GetRandomCardIndexCPU(CPUCards.cardArr, CPUCards.quantity, CPUDeck.deckValue, playerDeck.deckValue);
+            bool revivableCardExists = CPUDeck.deckArr[CPUDeck.deckQuantity - 1].effect == DEAD;
+            int CPUChosenIndex = GetRandomCardIndexCPU(CPUCards.cardArr, CPUCards.quantity, CPUDeck.deckValue, playerDeck.deckValue, revivableCardExists);
             if (CPUChosenIndex < 0) {
                 GAME_FLAG = CPU_LOST;
                 continue;
             }
-            CPUCardStorer = playerCards.cardArr[CPUChosenIndex];
+            CPUCardStorer = CPUCards.cardArr[CPUChosenIndex];
             ExertCardEffect(CPUCards.cardArr[CPUChosenIndex], &CPUDeck, &playerDeck, &playerCards);
             RemoveCardAtIndex(&CPUCards.cardArr, &CPUCards.quantity, CPUChosenIndex);
             // Do not compare card deck value and use below method instead as comparing values
