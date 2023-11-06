@@ -19,7 +19,7 @@ int PLAYER_VALUE = 0, CPU_VALUE = 0;
 
 void PrepareCards(Card *cardArr, int sz);
 
-void PlayGame(int screenWidth, int screenHeight) {
+enum GAME_FLAGS PlayGame(int screenWidth, int screenHeight) {
 
     // Must initialise cards before use
     CardsInit();
@@ -138,9 +138,9 @@ void PlayGame(int screenWidth, int screenHeight) {
             /*switch (GAME_FLAG) {
                 // Do something here...
                 case CPU_LOST:
-                    continue;
+                    break;
                 case PLAYER_LOST:
-                    continue;
+                    break;
             }*/
 
             DrawTexture(boardTxte, 0, 0, WHITE);
@@ -182,6 +182,7 @@ void PlayGame(int screenWidth, int screenHeight) {
         }
         EndDrawing();
         if (GAME_FLAG == CPU_MOVE) WaitTime(1);
+        if (GAME_FLAG == CPU_LOST || GAME_FLAG == PLAYER_LOST) break;
     }
     // Free everything here
     
@@ -189,6 +190,8 @@ void PlayGame(int screenWidth, int screenHeight) {
     free(playerDeck.deckArr);
     free(CPUCards.cardArr);
     free(CPUDeck.deckArr);
+
+    return GAME_FLAG;
 }
 
 void PrepareCards(Card *cardArr, int sz) {

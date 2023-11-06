@@ -10,6 +10,7 @@
 
 #include "raylib.h"
 #include "GameScreen.h"
+#include "EndScreen.h"
 
 #include <stdlib.h>
 
@@ -43,9 +44,18 @@ int main()
 #else
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
+    enum GAME_FLAGS returnedFlag;
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Blade");
     SetWindowIcon(icon);
-    PlayGame(SCREEN_WIDTH, SCREEN_HEIGHT);
+    returnedFlag = PlayGame(SCREEN_WIDTH, SCREEN_HEIGHT);
+    switch (returnedFlag) {
+        case CPU_LOST:
+            CPULost();
+            break;
+        case PLAYER_LOST:
+            PlayerLost();
+            break;
+    }
 #endif
 
     // De-Initialization
